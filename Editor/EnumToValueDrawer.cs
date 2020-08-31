@@ -28,6 +28,12 @@ namespace Vertx.Attributes.Editor
 
 			hidesFirstEnum = fieldInfo.GetCustomAttribute<HideFirstEnumValue>() != null;
 			Type inheritingType = fieldInfo.FieldType.BaseType;
+			
+			Type baseType = typeof(EnumToValueBase);
+			Type objectType = typeof(object);
+			while (inheritingType.BaseType != baseType && inheritingType.BaseType != objectType)
+				inheritingType = inheritingType.BaseType;
+
 			Type[] genericArguments = inheritingType.GetGenericArguments();
 			Type enumType = genericArguments[0];
 
