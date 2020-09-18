@@ -9,7 +9,7 @@ namespace Vertx.Attributes.Editor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			MinMaxAttribute a = (MinMaxAttribute) attribute;
-			DoSlider(a.Label, position, property, a.Min, a.Max);
+			DoSlider(a.Label ?? new GUIContent(property.displayName), position, property, a.Min, a.Max);
 		}
 
 		private static void DoSlider(GUIContent label, Rect position, SerializedProperty property, float minValue, float maxValue)
@@ -89,7 +89,10 @@ namespace Vertx.Attributes.Editor
 			EditorGUI.MinMaxSlider(position, ref min, ref max, minValue, maxValue);
 			position.x += sliderWidth;
 			position.width = floatWidth;
-			max = EditorGUI.FloatField(position, max);
+			if (isFloat)
+				max = EditorGUI.DelayedFloatField(position, max);
+			else
+				max = EditorGUI.DelayedIntField(position, (int) max);
 
 			min = Mathf.Min(min, max);
 			max = Mathf.Max(min, max);

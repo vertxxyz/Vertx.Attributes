@@ -4,6 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2020-09-18
+ - Fixes for File and Directory attributes throwing exceptions in 2020 and having overflowing buttons.
+ - MinMaxAttribute fixes:
+ 	- Max field now properly uses int values.
+ 	- Max field is now a delayed field to stop zeroing out min whilst editing.
+ 	- Label parameter is now optional. This is helpful for Vector2 fields that can derive the label from the field.
+ - ProgressAttribute's max value parameter is optional.
+
 ## [1.2.1] - 2020-09-12
  - Added Vector support to MinMaxAttribute
 

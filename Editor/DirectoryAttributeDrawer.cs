@@ -23,53 +23,58 @@ namespace Vertx.Attributes.Editor
 			{
 				string path = dA.DirectoryIsLocalToProject ? "Assets" : Application.dataPath;
 
-				property.stringValue = DirectoryButton(r, property, dA, path);
+				DirectoryButton(r, property, dA, path);
 				r.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 				r.height *= 2;
 				EditorGUI.HelpBox(r, "Directory is invalid or empty", MessageType.Error);
-				property.stringValue = DirectoryButton(default, property, dA, property.stringValue, true);
+				DirectoryButton(r, property, dA, property.stringValue, true);
 			}
 			else
 			{
-				property.stringValue = DirectoryButton(r, property, dA, property.stringValue);
+				DirectoryButton(r, property, dA, property.stringValue);
 			}
 		}
 
-		private static string DirectoryButton(Rect position, SerializedProperty sP, DirectoryAttribute dA, string path, bool overPrevious = false)
+		private static void DirectoryButton(Rect position, SerializedProperty sP, DirectoryAttribute dA, string path, bool overPrevious = false)
 		{
 			if (!overPrevious)
 			{
-				if (!GUI.Button(position, $"Set {sP.displayName}")) return sP.stringValue;
+				if (!GUI.Button(position, $"Set {sP.displayName}"))
+					return;
 			}
 			else
 			{
-				if (!EditorGUIUtils.ButtonOverPreviousControl()) return sP.stringValue;
+				if (!GUI.Button(position, GUIContent.none, GUIStyle.none))
+					return;
 			}
 
 			string newDirectory = EditorUtility.OpenFolderPanel("Choose Directory", path, path.Equals("Assets") ? string.Empty : path);
 			if (string.IsNullOrEmpty(newDirectory))
-				return sP.stringValue;
-			if (dA.DirectoryIsLocalToProject)
 			{
-				if (!newDirectory.StartsWith(Application.dataPath))
-				{
-					Debug.LogWarning("Directory must be local to project, eg. Assets...");
-					return sP.stringValue;
-				}
-
-				return $"Assets{newDirectory.Substring(Application.dataPath.Length)}";
+				GUIUtility.ExitGUI();
+				return;
 			}
 
-			return newDirectory;
+			if (!dA.DirectoryIsLocalToProject)
+				sP.stringValue = newDirectory;
+			else if (newDirectory.StartsWith(Application.dataPath))
+				sP.stringValue = $"Assets{newDirectory.Substring(Application.dataPath.Length)}";
+			else
+				Debug.LogWarning("Directory must be local to project, eg. Assets...");
+
+			sP.serializedObject.ApplyModifiedProperties();
+			GUIUtility.ExitGUI();
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			if (string.IsNullOrEmpty(property.stringValue) || !Directory.Exists(property.stringValue))
 				return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing;
-			DirectoryAttribute dA = attribute as DirectoryAttribute;
+			
+			DirectoryAttribute dA = (DirectoryAttribute) attribute;
 			if (dA.DirectoryIsLocalToProject && property.stringValue.StartsWith(Application.dataPath))
 				return EditorGUIUtility.singleLineHeight * 3 + EditorGUIUtility.standardVerticalSpacing;
+			
 			return EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing;
 		}
 	}

@@ -14,5 +14,11 @@ namespace Vertx.Attributes
 			Min = min;
 			Max = max;
 		}
+		
+		public MinMaxAttribute(float min, float max)
+		{
+			Min = min;
+			Max = max;
+		}
 	}
 }

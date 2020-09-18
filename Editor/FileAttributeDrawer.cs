@@ -14,62 +14,67 @@ namespace Vertx.Attributes.Editor
 		/// </summary>
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			FileAttribute dA = (FileAttribute) attribute;
+			FileAttribute fA = (FileAttribute) attribute;
 			Rect r = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 			EditorGUI.PropertyField(r, property, GUIContent.none);
 			r.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
 			if (string.IsNullOrEmpty(property.stringValue) || !File.Exists(property.stringValue))
 			{
-				string path = dA.FileIsLocalToProject ? "Assets" : Application.dataPath;
+				string path = fA.FileIsLocalToProject ? "Assets" : Application.dataPath;
 
-				property.stringValue = FileButton(r, property, dA, path);
+				FileButton(r, property, fA, path);
 				r.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 				r.height *= 2;
 				EditorGUI.HelpBox(r, "File is invalid or has not been not set", MessageType.Error);
-				property.stringValue = FileButton(default, property, dA, property.stringValue, true);
+				FileButton(r, property, fA, property.stringValue, true);
 			}
 			else
 			{
-				property.stringValue = FileButton(r, property, dA, property.stringValue);
+				FileButton(r, property, fA, property.stringValue);
 			}
 		}
 
-		private static string FileButton(Rect position, SerializedProperty sP, FileAttribute dA, string path, bool overPrevious = false)
+		private static void FileButton(Rect position, SerializedProperty sP, FileAttribute fA, string path, bool overPrevious = false)
 		{
 			if (!overPrevious)
 			{
-				if (!GUI.Button(position, $"Set {sP.displayName}")) return sP.stringValue;
+				if (!GUI.Button(position, $"Set {sP.displayName}"))
+					return;
 			}
 			else
 			{
-				if (!EditorGUIUtils.ButtonOverPreviousControl()) return sP.stringValue;
+				if (!GUI.Button(position, GUIContent.none, GUIStyle.none))
+					return;
 			}
 
-			string newFile = EditorUtility.OpenFilePanel("Choose File", path, string.Empty);
+			string newFile = EditorUtility.OpenFilePanel("Choose File", path, null);
 			if (string.IsNullOrEmpty(newFile))
-				return sP.stringValue;
-			if (dA.FileIsLocalToProject)
 			{
-				if (!newFile.StartsWith(Application.dataPath))
-				{
-					Debug.LogWarning("File must be local to project, eg. Assets...");
-					return sP.stringValue;
-				}
-
-				return $"Assets{newFile.Substring(Application.dataPath.Length)}";
+				GUIUtility.ExitGUI();
+				return;
 			}
 
-			return newFile;
+			if (!fA.FileIsLocalToProject)
+				sP.stringValue = newFile;
+			else if (newFile.StartsWith(Application.dataPath))
+				sP.stringValue = $"Assets{newFile.Substring(Application.dataPath.Length)}";
+			else
+				Debug.LogWarning("File must be local to project, eg. Assets...");
+
+			sP.serializedObject.ApplyModifiedProperties();
+			GUIUtility.ExitGUI();
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			if (string.IsNullOrEmpty(property.stringValue) || !File.Exists(property.stringValue))
 				return EditorGUIUtility.singleLineHeight * 4 + EditorGUIUtility.standardVerticalSpacing;
-			FileAttribute dA = attribute as FileAttribute;
-			if (dA.FileIsLocalToProject && property.stringValue.StartsWith(Application.dataPath))
+			
+			FileAttribute fA = (FileAttribute) attribute;
+			if (fA.FileIsLocalToProject && property.stringValue.StartsWith(Application.dataPath))
 				return EditorGUIUtility.singleLineHeight * 3 + EditorGUIUtility.standardVerticalSpacing;
+			
 			return EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing;
 		}
 	}
