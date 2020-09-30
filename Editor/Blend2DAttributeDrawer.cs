@@ -12,7 +12,8 @@ namespace Vertx.Attributes.Editor {
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			Blend2DAttribute b2D = (Blend2DAttribute) attribute;
-			Do2DBlend(position, property, b2D);
+			using(new EditorGUI.PropertyScope(position, GUIContent.none, property))
+				Do2DBlend(position, property, b2D);
 		}
 
 		private int hotControl = -1;

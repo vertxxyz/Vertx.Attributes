@@ -14,57 +14,60 @@ namespace Vertx.Attributes.Editor
 
 		private static void DoSlider(GUIContent label, Rect position, SerializedProperty property, float minValue, float maxValue)
 		{
-			bool isFloat = false;
-			bool isVector = false;
-			switch (property.propertyType)
+			using (new EditorGUI.PropertyScope(position, GUIContent.none, property))
 			{
-				case SerializedPropertyType.Integer:
-					break;
-				case SerializedPropertyType.Float:
-					isFloat = true;
-					break;
-				case SerializedPropertyType.Vector2:
-					isFloat = true;
-					isVector = true;
-					break;
-				case SerializedPropertyType.Vector2Int:
-					isVector = true;
-					break;
-				default:
-					Debug.LogWarning($"{nameof(MinMaxAttribute)} only supports float, int, {nameof(Vector2)}, and {nameof(Vector2Int)}.");
-					return;
-			}
-
-			if (isVector)
-			{
-				Vector2 minMax = isFloat ? property.vector2Value : property.vector2IntValue;
-				float min = minMax.x;
-				float max = minMax.y;
-				DoSlider(label, position, ref min, ref max, minValue, maxValue, isFloat);
-				if (isFloat)
-					property.vector2Value = new Vector2(min, max);
-				else
-					property.vector2IntValue = new Vector2Int((int) min, (int) max);
-			}
-			else
-			{
-				SerializedProperty current = property.Copy();
-				property.Next(false);
-				SerializedProperty next = property;
-
-				float min = isFloat ? current.floatValue : current.intValue;
-				float max = isFloat ? next.floatValue : next.intValue;
-				DoSlider(label, position, ref min, ref max, minValue, maxValue, isFloat);
-
-				if (isFloat)
+				bool isFloat = false;
+				bool isVector = false;
+				switch (property.propertyType)
 				{
-					current.floatValue = min;
-					next.floatValue = max;
+					case SerializedPropertyType.Integer:
+						break;
+					case SerializedPropertyType.Float:
+						isFloat = true;
+						break;
+					case SerializedPropertyType.Vector2:
+						isFloat = true;
+						isVector = true;
+						break;
+					case SerializedPropertyType.Vector2Int:
+						isVector = true;
+						break;
+					default:
+						Debug.LogWarning($"{nameof(MinMaxAttribute)} only supports float, int, {nameof(Vector2)}, and {nameof(Vector2Int)}.");
+						return;
+				}
+
+				if (isVector)
+				{
+					Vector2 minMax = isFloat ? property.vector2Value : property.vector2IntValue;
+					float min = minMax.x;
+					float max = minMax.y;
+					DoSlider(label, position, ref min, ref max, minValue, maxValue, isFloat);
+					if (isFloat)
+						property.vector2Value = new Vector2(min, max);
+					else
+						property.vector2IntValue = new Vector2Int((int) min, (int) max);
 				}
 				else
 				{
-					current.intValue = (int) min;
-					next.intValue = (int) max;
+					SerializedProperty current = property.Copy();
+					property.Next(false);
+					SerializedProperty next = property;
+
+					float min = isFloat ? current.floatValue : current.intValue;
+					float max = isFloat ? next.floatValue : next.intValue;
+					DoSlider(label, position, ref min, ref max, minValue, maxValue, isFloat);
+
+					if (isFloat)
+					{
+						current.floatValue = min;
+						next.floatValue = max;
+					}
+					else
+					{
+						current.intValue = (int) min;
+						next.intValue = (int) max;
+					}
 				}
 			}
 		}
