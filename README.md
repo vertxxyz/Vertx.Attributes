@@ -43,6 +43,10 @@ Displays a 2D trackpad-like interface/graph for Vector2 values.
 *float minX, minY, maxX, maxY* - The bounds of the graph.  
 
 
+- **[HelpBox]**  
+Decorates a field with a help box.
+
+
 - **[File]**
 - **[Directory]**  
 Styles string fields with a button to pick files/directories.  
