@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using Vertx.Utilities.Editor;
 
 namespace Vertx.Attributes.Editor
 {
@@ -14,8 +15,9 @@ namespace Vertx.Attributes.Editor
 
 		private static void DoSlider(GUIContent label, Rect position, SerializedProperty property, float minValue, float maxValue)
 		{
-			using (new EditorGUI.PropertyScope(position, GUIContent.none, property))
+			using (var prop = new EditorGUI.PropertyScope(position, label, property))
 			{
+				label = prop.content;
 				bool isFloat = false;
 				bool isVector = false;
 				switch (property.propertyType)
@@ -74,28 +76,30 @@ namespace Vertx.Attributes.Editor
 
 		private static void DoSlider(GUIContent label, Rect position, ref float min, ref float max, float minValue, float maxValue, bool isFloat)
 		{
-			float width = EditorGUIUtility.labelWidth;
-			position.width -= width;
-			Rect labelLeft = new Rect(position.x, position.y, width, position.height);
-			EditorGUI.LabelField(labelLeft, label);
+			const int padding = 2;
+			
+			position = EditorGUI.PrefixLabel(position, label);
+			float floatWidth = Mathf.Max(40, position.width * 0.125f);
+			float sliderWidth = position.width - floatWidth * 2 - padding * 2;
+			position.width = floatWidth;
+			using (new EditorGUIUtils.ZeroIndentScope())
+			{
+				if (isFloat)
+					min = EditorGUI.FloatField(position, min);
+				else
+					min = EditorGUI.IntField(position, (int) min);
 
-			position = new Rect(labelLeft.xMax, position.y, position.width, position.height);
-			float floatWidth = position.width * 0.125f;
-			float sliderWidth = position.width - floatWidth * 2;
-			position.width = floatWidth;
-			if (isFloat)
-				min = EditorGUI.FloatField(position, min);
-			else
-				min = EditorGUI.IntField(position, (int) min);
-			position.x += floatWidth;
-			position.width = sliderWidth;
-			EditorGUI.MinMaxSlider(position, ref min, ref max, minValue, maxValue);
-			position.x += sliderWidth;
-			position.width = floatWidth;
-			if (isFloat)
-				max = EditorGUI.DelayedFloatField(position, max);
-			else
-				max = EditorGUI.DelayedIntField(position, (int) max);
+				position.x += floatWidth + padding;
+				position.width = sliderWidth;
+				EditorGUI.MinMaxSlider(position, ref min, ref max, minValue, maxValue);
+				position.x += sliderWidth + padding;
+				position.width = floatWidth;
+				
+				if (isFloat)
+					max = EditorGUI.DelayedFloatField(position, max);
+				else
+					max = EditorGUI.DelayedIntField(position, (int) max);
+			}
 
 			min = Mathf.Min(min, max);
 			max = Mathf.Max(min, max);
