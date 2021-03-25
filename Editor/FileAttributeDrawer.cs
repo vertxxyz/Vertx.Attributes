@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
-using Vertx.Utilities.Editor;
 
 namespace Vertx.Attributes.Editor
 {

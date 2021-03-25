@@ -1,6 +1,6 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
-using Vertx.Utilities.Editor;
 
 namespace Vertx.Attributes.Editor
 {
@@ -82,7 +82,7 @@ namespace Vertx.Attributes.Editor
 			float floatWidth = Mathf.Max(40, position.width * 0.125f);
 			float sliderWidth = position.width - floatWidth * 2 - padding * 2;
 			position.width = floatWidth;
-			using (new EditorGUIUtils.ZeroIndentScope())
+			using (new ZeroIndentScope())
 			{
 				if (isFloat)
 					min = EditorGUI.FloatField(position, min);
@@ -103,6 +103,19 @@ namespace Vertx.Attributes.Editor
 
 			min = Mathf.Min(min, max);
 			max = Mathf.Max(min, max);
+		}
+		
+		private class ZeroIndentScope : IDisposable
+		{
+			private readonly int previousIndent;
+
+			public ZeroIndentScope()
+			{
+				previousIndent = EditorGUI.indentLevel;
+				EditorGUI.indentLevel = 0;
+			}
+
+			public void Dispose() => EditorGUI.indentLevel = previousIndent;
 		}
 	}
 }
