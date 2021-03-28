@@ -83,10 +83,10 @@ You can also add it directly from GitHub on Unity 2019.4+. Note that you won't b
 - open Package Manager
 - click <kbd>+</kbd>
 - select <kbd>Add from Git URL</kbd>
-- paste `https://github.com/vertxxyz/attributes.git`
+- paste `https://github.com/vertxxyz/Vertx.Attributes.git`
 - click <kbd>Add</kbd>  
   **or**
-- Edit your `manifest.json` file to contain `"com.vertx.editors": "https://github.com/vertxxyz/attributes.git"`,
+- Edit your `manifest.json` file to contain `"com.vertx.editors": "https://github.com/vertxxyz/Vertx.Attributes.git"`,
 
 To update the package with new changes, remove the lock from the `packages-lock.json` file.
 </details>
