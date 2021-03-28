@@ -50,3 +50,43 @@ Decorates a field with a help box.
 - **[Directory]**  
 Styles string fields with a button to pick files/directories.  
 *bool fileIsLocalToProject* - Constrains the selection to be within the Assets directory.  
+
+## Installation
+
+<details>
+<summary>Add from OpenUPM <em>| via scoped registry, recommended</em></summary>
+
+This package is available on OpenUPM: https://openupm.com/packages/com.vertx.attributes
+
+To add it the package to your project:
+
+- open `Edit/Project Settings/Package Manager`
+- add a new Scoped Registry:
+  ```
+  Name: OpenUPM
+  URL:  https://package.openupm.com/
+  Scope(s): com.vertx
+  ```
+- click <kbd>Save</kbd>
+- open Package Manager
+- click <kbd>+</kbd>
+- select <kbd>Add from Git URL</kbd>
+- paste `com.vertx.attributes`
+- click <kbd>Add</kbd>
+</details>
+
+<details>
+<summary>Add from GitHub | <em>not recommended, no updates through UPM</em></summary>
+
+You can also add it directly from GitHub on Unity 2019.4+. Note that you won't be able to receive updates through Package Manager this way, you'll have to update manually.
+
+- open Package Manager
+- click <kbd>+</kbd>
+- select <kbd>Add from Git URL</kbd>
+- paste `https://github.com/vertxxyz/attributes.git`
+- click <kbd>Add</kbd>  
+  **or**
+- Edit your `manifest.json` file to contain `"com.vertx.editors": "https://github.com/vertxxyz/attributes.git"`,
+
+To update the package with new changes, remove the lock from the `packages-lock.json` file.
+</details>
