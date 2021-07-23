@@ -58,7 +58,7 @@ namespace Vertx.Attributes.Editor
 
 					if (valueToNames.TryGetValue(value, out string name))
 					{
-						valueToNames[value] = $"{name}/{nicifiedName}";
+						valueToNames[value] = $"{name} | {nicifiedName}";
 						continue;
 					}
 
@@ -78,18 +78,48 @@ namespace Vertx.Attributes.Editor
 					return result;
 
 				StringBuilder stringBuilder = new StringBuilder();
+				bool hitMax = false;
 				foreach (KeyValuePair<int, string> pair in valueToNames)
 				{
 					if (pair.Key == 0) continue;
 					if ((pair.Key & value) == 0) continue;
 					if (!IsPowerOfTwo(pair.Key)) continue;
 					stringBuilder.Append(pair.Value);
+					if (stringBuilder.Length > 80)
+					{
+						stringBuilder.Append("...");
+						hitMax = true;
+						break;
+					}
 					stringBuilder.Append(", ");
+				}
+
+				if (hitMax)
+				{
+					hitMax = false;
+					StringBuilder secondaryBuilder = new StringBuilder("Not ");
+					foreach (KeyValuePair<int, string> pair in valueToNames)
+					{
+						if (pair.Key == 0) continue;
+						if ((pair.Key & value) != 0) continue;
+						if (!IsPowerOfTwo(pair.Key)) continue;
+						secondaryBuilder.Append(pair.Value);
+						if (secondaryBuilder.Length > 80)
+						{
+							hitMax = true;
+							break;
+						}
+						secondaryBuilder.Append(", ");
+					}
+
+					if (!hitMax)
+						stringBuilder = secondaryBuilder;
 				}
 
 				if (stringBuilder.Length != 0)
 				{
-					stringBuilder.Remove(stringBuilder.Length - 2, 2);
+					if(!hitMax) // Remove the last ", "
+						stringBuilder.Remove(stringBuilder.Length - 2, 2);
 					complexNameLookup.Add(value, stringBuilder.ToString());
 				}
 				else
