@@ -12,7 +12,7 @@ namespace Vertx.Attributes.Editor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var flagsAttribute = (EnumFlagsAttribute) attribute;
+			var flagsAttribute = (EnumFlagsAttribute)attribute;
 			Type enumType = fieldInfo.FieldType;
 			if (!enumType.IsEnum)
 			{
@@ -30,123 +30,142 @@ namespace Vertx.Attributes.Editor
 			EditorGUI.EndProperty();
 		}
 
-		private static readonly Dictionary<Type, string[]> namesLookup = new Dictionary<Type, string[]>();
-		private static readonly Dictionary<Type, int[]> valuesLookup = new Dictionary<Type, int[]>();
-		private static readonly Dictionary<Type, Dictionary<int, string>> valuesDictLookup = new Dictionary<Type, Dictionary<int, string>>();
-		private static readonly int layerMaskFieldHash = "vertx_EnumFlagsField".GetHashCode();
+		private static readonly Dictionary<Type, ValueAndNames> lookup = new Dictionary<Type, ValueAndNames>();
 
-		private static void EnumFlagsFieldDistinct(Rect position, GUIContent label, SerializedProperty maskProperty, Type enumType)
+		private class ValueAndNames
 		{
-			int mask = maskProperty.intValue;
+			private readonly string noneName = "Nothing";
+			private readonly Dictionary<int, string> valueToNames = new Dictionary<int, string>();
+			private readonly Dictionary<int, string> complexNameLookup = new Dictionary<int, string>();
+			private readonly int everythingValue;
 
-			if (!namesLookup.TryGetValue(enumType, out string[] names))
-				namesLookup.Add(enumType, names = Enum.GetNames(enumType).Skip(1).Select(ObjectNames.NicifyVariableName).ToArray());
-
-			if (!valuesLookup.TryGetValue(enumType, out int[] values))
-				valuesLookup.Add(enumType, values = new int[names.Length]);
-			else if (values.Length != names.Length)
-				Array.Resize(ref values, names.Length);
-
-			if (!valuesDictLookup.TryGetValue(enumType, out Dictionary<int, string> valuesDict))
-				valuesDictLookup.Add(enumType, valuesDict = new Dictionary<int, string>());
-
-			bool MaskContainsIndex(int index)
+			public ValueAndNames(Type enumType)
 			{
-				int compBit = 1 << index;
-				return (mask & compBit) != 0;
-			}
-
-			//Set the values used by our mask.
-			int count = 0;
-			for (int i = 0; i < values.Length; i++)
-			{
-				if (!MaskContainsIndex(i))
-					continue;
-				values[i] = 1 << i;
-				count++;
-			}
-
-			//Collect the string we display in our field.
-			if (!valuesDict.TryGetValue(mask, out string str))
-			{
-				if (count == 0)
+				string[] names = Enum.GetNames(enumType);
+				Array values = Enum.GetValues(enumType);
+				everythingValue = 0;
+				for (int i = 0; i < values.Length; i++)
 				{
-					str = "Nothing";
+					int value = (int)values.GetValue(i);
+					string nicifiedName = ObjectNames.NicifyVariableName(names[i]);
+					everythingValue |= value;
+
+					if (value == 0)
+					{
+						noneName = nicifiedName;
+						continue;
+					}
+
+					if (valueToNames.TryGetValue(value, out string name))
+					{
+						valueToNames[value] = $"{name}/{nicifiedName}";
+						continue;
+					}
+
+					valueToNames.Add(value, nicifiedName);
 				}
-				else if (count == values.Length)
+
+				valueToNames.Add(0, noneName);
+			}
+
+			public string GetName(int value)
+			{
+				if (value == everythingValue) return "Everything";
+				if (valueToNames.TryGetValue(value, out var result))
+					return result;
+
+				if (complexNameLookup.TryGetValue(value, out result))
+					return result;
+
+				StringBuilder stringBuilder = new StringBuilder();
+				foreach (KeyValuePair<int, string> pair in valueToNames)
 				{
-					str = "Everything";
+					if (pair.Key == 0) continue;
+					if ((pair.Key & value) == 0) continue;
+					if (!IsPowerOfTwo(pair.Key)) continue;
+					stringBuilder.Append(pair.Value);
+					stringBuilder.Append(", ");
+				}
+
+				if (stringBuilder.Length != 0)
+				{
+					stringBuilder.Remove(stringBuilder.Length - 2, 2);
+					complexNameLookup.Add(value, stringBuilder.ToString());
 				}
 				else
 				{
-					StringBuilder sB = new StringBuilder();
-					for (int i = 0; i < values.Length; i++)
-					{
-						if (!MaskContainsIndex(i))
-							continue;
-						if (sB.Length > 0)
-							sB.Append(", ");
-						sB.Append(names[i]);
-					}
-
-					str = sB.ToString();
+					complexNameLookup.Add(value, "⚠️ Invalid ⚠️");
 				}
 
-				valuesDict.Add(mask, str);
+				return complexNameLookup[value];
 			}
 
-			position = EditorGUI.PrefixLabel(position, label);
-			if (GUI.Button(position, str, EditorStyles.layerMaskField))
+			public void DropDown(Rect rect, SerializedProperty property)
 			{
 				GenericMenu menu = new GenericMenu();
-				menu.AddItem(new GUIContent("Nothing"), count == 0, () =>
-				{
-					maskProperty.intValue = 0;
-					maskProperty.serializedObject.ApplyModifiedProperties();
-				});
-				menu.AddItem(new GUIContent("Everything"), count == values.Length, () =>
-				{
-					maskProperty.intValue = ~0;
-					maskProperty.serializedObject.ApplyModifiedProperties();
-				});
-				menu.AddSeparator(string.Empty);
-				for (int i = 0; i < values.Length; i++)
-				{
-					int localI = i;
-					//int localIndex = (int)(Mathf.Log(localI) / Mathf.Log(2)) + 1;
-					menu.AddItem(new GUIContent(names[i]), MaskContainsIndex(i), () =>
-					{
-						//If the mask is "everything" then we want to make sure that this flip removes everything up to the max index.
-						if (mask == ~0)
-						{
-							mask = 0;
-							//Just toggle *on* the values that are really in the mask range.
-							foreach (int value in values)
-							{
-								//int index = (int)(Mathf.Log(value) / Mathf.Log(2)) + 1;
-								mask |= value;
-							}
-						}
-						//If we're one away from having "everything"
-						else if (count == values.Length - 1)
-						{
-							//And the mask is going to flip the bit in question
-							if ((values[localI] & mask) == 0)
-							{
-								//Set the mask to "everything"
-								maskProperty.intValue = ~0;
-								maskProperty.serializedObject.ApplyModifiedProperties();
-								return;
-							}
-						}
 
-						maskProperty.intValue = mask ^ 1 << localI;
-						maskProperty.serializedObject.ApplyModifiedProperties();
+				int originalValue = property.intValue;
+
+				menu.AddItem(new GUIContent(noneName), originalValue == 0, () =>
+				{
+					property.intValue = 0;
+					property.serializedObject.ApplyModifiedProperties();
+				});
+				menu.AddItem(new GUIContent("Everything"), originalValue == everythingValue, () =>
+				{
+					property.intValue = everythingValue;
+					property.serializedObject.ApplyModifiedProperties();
+				});
+
+				menu.AddSeparator("");
+
+				foreach (KeyValuePair<int, string> pair in valueToNames)
+				{
+					if (pair.Key == 0) continue;
+					if (!IsPowerOfTwo(pair.Key)) continue;
+					menu.AddItem(new GUIContent(pair.Value), (pair.Key & originalValue) != 0, () =>
+					{
+						property.intValue ^= pair.Key;
+						property.serializedObject.ApplyModifiedProperties();
 					});
 				}
 
-				menu.DropDown(position);
+				bool hasSeparator = false;
+
+				foreach (KeyValuePair<int, string> pair in valueToNames)
+				{
+					if (pair.Key == 0) continue;
+					if (IsPowerOfTwo(pair.Key)) continue;
+					if (!hasSeparator)
+					{
+						menu.AddSeparator("");
+						hasSeparator = true;
+					}
+
+					menu.AddItem(new GUIContent(pair.Value), (pair.Key & originalValue) == pair.Key, () =>
+					{
+						if(pair.Key == 0 || (pair.Key & property.intValue) == pair.Key)
+							property.intValue ^= pair.Key;
+						else
+							property.intValue |= pair.Key;
+						property.serializedObject.ApplyModifiedProperties();
+					});
+				}
+
+				menu.DropDown(rect);
 			}
+
+			private static bool IsPowerOfTwo(int x) => x != 0 && (x & (x - 1)) == 0;
+		}
+
+		private static void EnumFlagsFieldDistinct(Rect position, GUIContent label, SerializedProperty maskProperty, Type enumType)
+		{
+			if (!lookup.TryGetValue(enumType, out ValueAndNames valueAndNames))
+				lookup.Add(enumType, valueAndNames = new ValueAndNames(enumType));
+
+			position = EditorGUI.PrefixLabel(position, label);
+			if (GUI.Button(position, valueAndNames.GetName(maskProperty.intValue), EditorStyles.layerMaskField))
+				valueAndNames.DropDown(position, maskProperty);
 		}
 	}
 }
