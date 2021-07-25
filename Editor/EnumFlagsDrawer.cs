@@ -43,10 +43,12 @@ namespace Vertx.Attributes.Editor
 			{
 				string[] names = Enum.GetNames(enumType);
 				Array values = Enum.GetValues(enumType);
+				Type underlyingType = Enum.GetUnderlyingType(enumType);
+				bool isInt = underlyingType == typeof(int);
 				everythingValue = 0;
 				for (int i = 0; i < values.Length; i++)
 				{
-					int value = (int)values.GetValue(i);
+					int value = isInt ? (int)values.GetValue(i) : (byte)values.GetValue(i);
 					string nicifiedName = ObjectNames.NicifyVariableName(names[i]);
 					everythingValue |= value;
 
@@ -91,6 +93,7 @@ namespace Vertx.Attributes.Editor
 						hitMax = true;
 						break;
 					}
+
 					stringBuilder.Append(", ");
 				}
 
@@ -109,6 +112,7 @@ namespace Vertx.Attributes.Editor
 							hitMax = true;
 							break;
 						}
+
 						secondaryBuilder.Append(", ");
 					}
 
@@ -118,7 +122,7 @@ namespace Vertx.Attributes.Editor
 
 				if (stringBuilder.Length != 0)
 				{
-					if(!hitMax) // Remove the last ", "
+					if (!hitMax) // Remove the last ", "
 						stringBuilder.Remove(stringBuilder.Length - 2, 2);
 					complexNameLookup.Add(value, stringBuilder.ToString());
 				}
@@ -174,7 +178,7 @@ namespace Vertx.Attributes.Editor
 
 					menu.AddItem(new GUIContent(pair.Value), (pair.Key & originalValue) == pair.Key, () =>
 					{
-						if(pair.Key == 0 || (pair.Key & property.intValue) == pair.Key)
+						if (pair.Key == 0 || (pair.Key & property.intValue) == pair.Key)
 							property.intValue ^= pair.Key;
 						else
 							property.intValue |= pair.Key;
@@ -191,11 +195,31 @@ namespace Vertx.Attributes.Editor
 		private static void EnumFlagsFieldDistinct(Rect position, GUIContent label, SerializedProperty maskProperty, Type enumType)
 		{
 			if (!lookup.TryGetValue(enumType, out ValueAndNames valueAndNames))
-				lookup.Add(enumType, valueAndNames = new ValueAndNames(enumType));
+			{
+				try
+				{
+					lookup.Add(enumType, valueAndNames = new ValueAndNames(enumType));
+				}
+				catch (Exception e)
+				{
+					Debug.LogException(e);
+					lookup.Add(enumType, null);
+					DrawFailedLabel();
+					return;
+				}
+			}
+
+			if (valueAndNames == null)
+			{
+				DrawFailedLabel();
+				return;
+			}
 
 			position = EditorGUI.PrefixLabel(position, label);
 			if (GUI.Button(position, valueAndNames.GetName(maskProperty.intValue), EditorStyles.layerMaskField))
 				valueAndNames.DropDown(position, maskProperty);
+
+			void DrawFailedLabel() => EditorGUI.HelpBox(position, $"{label.text} failed to be drawn by Enum Flags. Perhaps it is not a serializable enum type?", MessageType.Error);
 		}
 	}
 }
