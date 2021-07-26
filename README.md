@@ -19,7 +19,7 @@ Adds a picker to rebind keys by using the keyboard.
   
 
 - **[MinMax]**  
-A Range slider for Vector2, Vector2Int.  
+A Range slider for Vector2, Vector2Int. Has support for Unity.Mathematics float2 and int2 types.  
 Can be used with float and int by applying [HideInInspector] to the second field.  
 *float min, max* - the min and max bounds to the slider.  
 *string label* - optional label to override the default. This is generally used for int/float fields.
@@ -37,7 +37,7 @@ Clamps a Curve to a new range and/or restyles its color
   
 
 - **[Blend2D]**  
-Displays a 2D trackpad-like interface/graph for Vector2 values.  
+Displays a 2D trackpad-like interface/graph for Vector2 values. Has support for Unity.Mathematics float2.  
 *string xLabel, yLabel* - Labels for the X and Y axes of the graph.  
 *float minX, minY, maxX, maxY* - The bounds of the graph.  
 

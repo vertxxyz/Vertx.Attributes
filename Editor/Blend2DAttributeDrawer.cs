@@ -2,6 +2,9 @@
 using UnityEditor;
 using System.Reflection;
 using UnityEngine.Rendering;
+#if UNITY_MATHEMATICS
+using Unity.Mathematics;
+#endif
 
 namespace Vertx.Attributes.Editor {
 	[CustomPropertyDrawer(typeof(Blend2DAttribute))]
@@ -51,6 +54,18 @@ namespace Vertx.Attributes.Editor {
 
 							menu.AddItem(new GUIContent("Center"), false, () =>
 							{
+#if UNITY_MATHEMATICS
+								if (IsFloat2())
+								{
+									SerializedProperty x = property.FindPropertyRelative("x");
+									SerializedProperty y = property.FindPropertyRelative("y");
+									Vector2 value = Vector2.Lerp(b2D.Min, b2D.Max, 0.5f);
+									x.floatValue = value.x;
+									y.floatValue = value.y;
+									property.serializedObject.ApplyModifiedProperties();
+									return;
+								}
+#endif
 								property.vector2Value = Vector2.Lerp(b2D.Min, b2D.Max, 0.5f);
 								property.serializedObject.ApplyModifiedProperties();
 							});
@@ -65,11 +80,23 @@ namespace Vertx.Attributes.Editor {
 				{
 					if (e.isMouse)
 					{
-						property.vector2Value =
-							Lerp(
-								b2D.Min,
-								b2D.Max,
-								new Vector2(e.mousePosition.x / blendBoxSize, (blendBoxSize - e.mousePosition.y) / blendBoxSize));
+						Vector2 value = Lerp(
+							b2D.Min,
+							b2D.Max,
+							new Vector2(e.mousePosition.x / blendBoxSize, (blendBoxSize - e.mousePosition.y) / blendBoxSize));
+#if UNITY_MATHEMATICS
+						if (IsFloat2())
+						{
+							SerializedProperty x = property.FindPropertyRelative("x");
+							SerializedProperty y = property.FindPropertyRelative("y");
+							x.floatValue = value.x;
+							y.floatValue = value.y;
+						}
+						else
+#endif
+						{
+							property.vector2Value = value;
+						}
 						e.Use();
 					}
 				}
@@ -110,7 +137,41 @@ namespace Vertx.Attributes.Editor {
 					}
 				}
 
+#if UNITY_MATHEMATICS
+				bool IsFloat2() => property.propertyType == SerializedPropertyType.Generic && property.type == nameof(float2);
+				
+				Vector2 v;
+				if (IsFloat2())
+				{
+					SerializedProperty x = property.FindPropertyRelative("x");
+					SerializedProperty y = property.FindPropertyRelative("y");
+					v = new Vector2(x.floatValue, y.floatValue);
+					using (EditorGUI.ChangeCheckScope cC = new EditorGUI.ChangeCheckScope())
+					{
+						Rect labelRect = new Rect(blendBoxSize + 5, blendBoxSize / 2f - 50, Screen.width - blendBoxSize - 5, EditorGUIUtility.singleLineHeight);
+						EditorGUI.LabelField(labelRect, property.displayName, EditorStyles.boldLabel);
+						labelRect.y += 20;
+						EditorGUI.LabelField(labelRect, b2D.XLabel);
+						labelRect.y += EditorGUIUtility.singleLineHeight;
+						v.x = EditorGUI.DelayedFloatField(labelRect, v.x);
+						labelRect.y += EditorGUIUtility.singleLineHeight;
+						EditorGUI.LabelField(labelRect, b2D.YLabel);
+						labelRect.y += EditorGUIUtility.singleLineHeight;
+						v.y = EditorGUI.DelayedFloatField(labelRect, v.y);
+						if (cC.changed)
+						{
+							x.floatValue = Mathf.Clamp(v.x, b2D.Min.x, b2D.Max.x);
+							y.floatValue = Mathf.Clamp(v.y, b2D.Min.y, b2D.Max.y);
+						}
+					}
+
+					return;
+				}
+				v = property.vector2Value;
+#else
 				Vector2 v = property.vector2Value;
+#endif
+				
 				using (EditorGUI.ChangeCheckScope cC = new EditorGUI.ChangeCheckScope())
 				{
 					Rect labelRect = new Rect(blendBoxSize + 5, blendBoxSize / 2f - 50, Screen.width - blendBoxSize - 5, EditorGUIUtility.singleLineHeight);

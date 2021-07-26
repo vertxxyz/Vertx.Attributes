@@ -39,16 +39,45 @@ namespace Vertx.Attributes.Editor
 			private readonly Dictionary<int, string> complexNameLookup = new Dictionary<int, string>();
 			private readonly int everythingValue;
 
+			private enum SupportedTypes : byte
+			{
+				Byte,
+				Short,
+				Int
+			}
+
 			public ValueAndNames(Type enumType)
 			{
 				string[] names = Enum.GetNames(enumType);
 				Array values = Enum.GetValues(enumType);
 				Type underlyingType = Enum.GetUnderlyingType(enumType);
-				bool isInt = underlyingType == typeof(int);
+				SupportedTypes type;
+				if (underlyingType == typeof(int))
+					type = SupportedTypes.Int;
+				else if (underlyingType == typeof(short))
+					type = SupportedTypes.Short;
+				else if (underlyingType == typeof(byte))
+					type = SupportedTypes.Byte;
+				else
+					type = SupportedTypes.Int; // Default and let any exceptions occur
 				everythingValue = 0;
 				for (int i = 0; i < values.Length; i++)
 				{
-					int value = isInt ? (int)values.GetValue(i) : (byte)values.GetValue(i);
+					int value;
+					switch (type)
+					{
+						case SupportedTypes.Byte:
+							value = (byte)values.GetValue(i);
+							break;
+						case SupportedTypes.Short:
+							value = (short)values.GetValue(i);
+							break;
+						case SupportedTypes.Int:
+							value = (int)values.GetValue(i);
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
 					string nicifiedName = ObjectNames.NicifyVariableName(names[i]);
 					everythingValue |= value;
 

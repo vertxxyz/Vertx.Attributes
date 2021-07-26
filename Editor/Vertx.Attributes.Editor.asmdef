@@ -2,7 +2,8 @@
     "name": "Vertx.Attributes.Editor",
     "rootNamespace": "Vertx.Attributes.Editor",
     "references": [
-        "GUID:469445bf6a23e0f489cf3db8cd1a420d"
+        "GUID:469445bf6a23e0f489cf3db8cd1a420d",
+        "GUID:d8b63aba1907145bea998dd612889d6b"
     ],
     "includePlatforms": [
         "Editor"
@@ -13,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.mathematics",
+            "expression": "0.0.0",
+            "define": "UNITY_MATHEMATICS"
+        }
+    ],
     "noEngineReferences": false
 }
