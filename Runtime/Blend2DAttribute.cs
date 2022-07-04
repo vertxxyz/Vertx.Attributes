@@ -10,16 +10,12 @@ namespace Vertx.Attributes
 		public readonly string YLabel;
 		public readonly Vector2 Min;
 		public readonly Vector2 Max;
+		
+		public Blend2DAttribute() : this("X", "Y") { }
+		
+		public Blend2DAttribute(float minX, float minY, float maxX, float maxY) : this("X", "Y", minX, minY, maxX, maxY) { }
 
-		public Blend2DAttribute(string xLabel, string yLabel)
-		{
-			XLabel = xLabel;
-			YLabel = yLabel;
-			Min = Vector2.one * -1;
-			Max = Vector2.one;
-		}
-
-		public Blend2DAttribute(string xLabel, string yLabel, float minX, float minY, float maxX, float maxY)
+		public Blend2DAttribute(string xLabel, string yLabel, float minX = -1, float minY = -1, float maxX = 1, float maxY = 1)
 		{
 			XLabel = xLabel;
 			YLabel = yLabel;

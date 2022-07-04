@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -25,7 +26,7 @@ namespace Vertx.Attributes.Editor
 			EditorGUI.BeginProperty(position, label, property);
 			if (flagsAttribute.RedZero && property.intValue == 0)
 				GUI.color = new Color(1f, 0.46f, 0.51f);
-			EnumFlagsFieldDistinct(position, label, property, enumType);
+			EnumFlagsFieldDistinct(position, label, property, enumType, flagsAttribute.HideObsoleteNames);
 			GUI.color = Color.white;
 			EditorGUI.EndProperty();
 		}
@@ -46,8 +47,10 @@ namespace Vertx.Attributes.Editor
 				Int
 			}
 
-			public ValueAndNames(Type enumType)
+			public ValueAndNames(Type enumType, bool hideObsoleteNames)
 			{
+				Dictionary<string, FieldInfo> fieldLookup = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(k => k.Name, v => v);
+
 				string[] names = Enum.GetNames(enumType);
 				Array values = Enum.GetValues(enumType);
 				Type underlyingType = Enum.GetUnderlyingType(enumType);
@@ -78,7 +81,23 @@ namespace Vertx.Attributes.Editor
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
-					string nicifiedName = ObjectNames.NicifyVariableName(names[i]);
+
+					string valueName = names[i];
+					string nicifiedName = null;
+					if (hideObsoleteNames && fieldLookup.TryGetValue(valueName, out var fieldInfo))
+					{
+						var obsoleteAttribute = fieldInfo.GetCustomAttribute<ObsoleteAttribute>();
+						if (obsoleteAttribute != null)
+							continue;
+						
+						var inspectorNameAttribute = fieldInfo.GetCustomAttribute<InspectorNameAttribute>();
+						if (inspectorNameAttribute != null)
+							nicifiedName = inspectorNameAttribute.displayName;
+					}
+
+					if (nicifiedName == null)
+						nicifiedName = ObjectNames.NicifyVariableName(valueName);
+
 					everythingValue |= value;
 
 					if (value == 0)
@@ -221,13 +240,13 @@ namespace Vertx.Attributes.Editor
 			private static bool IsPowerOfTwo(int x) => x != 0 && (x & (x - 1)) == 0;
 		}
 
-		private static void EnumFlagsFieldDistinct(Rect position, GUIContent label, SerializedProperty maskProperty, Type enumType)
+		private static void EnumFlagsFieldDistinct(Rect position, GUIContent label, SerializedProperty maskProperty, Type enumType, bool hideObsoleteNames)
 		{
 			if (!lookup.TryGetValue(enumType, out ValueAndNames valueAndNames))
 			{
 				try
 				{
-					lookup.Add(enumType, valueAndNames = new ValueAndNames(enumType));
+					lookup.Add(enumType, valueAndNames = new ValueAndNames(enumType, hideObsoleteNames));
 				}
 				catch (Exception e)
 				{

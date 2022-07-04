@@ -1,12 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEditor;
 using System.Reflection;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 #if UNITY_MATHEMATICS
 using Unity.Mathematics;
 #endif
 
-namespace Vertx.Attributes.Editor {
+namespace Vertx.Attributes.Editor
+{
 	[CustomPropertyDrawer(typeof(Blend2DAttribute))]
 	public class Blend2DAttributeDrawer : PropertyDrawer
 	{
@@ -14,8 +17,8 @@ namespace Vertx.Attributes.Editor {
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			Blend2DAttribute b2D = (Blend2DAttribute) attribute;
-			using(new EditorGUI.PropertyScope(position, GUIContent.none, property))
+			Blend2DAttribute b2D = (Blend2DAttribute)attribute;
+			using (new EditorGUI.PropertyScope(position, GUIContent.none, property))
 				Do2DBlend(position, property, b2D);
 		}
 
@@ -24,7 +27,9 @@ namespace Vertx.Attributes.Editor {
 
 		private void Do2DBlend(Rect r, SerializedProperty property, Blend2DAttribute b2D)
 		{
-			using (new GUI.GroupScope(r))
+			Profiler.BeginSample(nameof(Do2DBlend));
+			GUI.BeginGroup(r);
+			try
 			{
 				Rect blendRect = new Rect(Vector2.zero, Vector2.one * blendBoxSize);
 
@@ -41,7 +46,8 @@ namespace Vertx.Attributes.Editor {
 
 				if (e.isMouse && e.rawType == EventType.MouseUp)
 				{
-					switch (e.button) {
+					switch (e.button)
+					{
 						case 0:
 							hotControl = -1;
 							GUIUtility.hotControl = 0;
@@ -69,7 +75,7 @@ namespace Vertx.Attributes.Editor {
 								property.vector2Value = Vector2.Lerp(b2D.Min, b2D.Max, 0.5f);
 								property.serializedObject.ApplyModifiedProperties();
 							});
-							
+
 							menu.ShowAsContext();
 							e.Use();
 							break;
@@ -97,49 +103,49 @@ namespace Vertx.Attributes.Editor {
 						{
 							property.vector2Value = value;
 						}
+
 						e.Use();
 					}
 				}
-			
-				using (new GUI.GroupScope(blendRect, EditorStyles.helpBox))
+				
+				GUI.Box(blendRect, "", EditorStyles.helpBox);
+
+				if (e.type == EventType.Repaint)
 				{
-					if (e.type == EventType.Repaint)
-					{
-						GL.Begin(Application.platform == RuntimePlatform.WindowsEditor ? GL.QUADS : GL.LINES);
-						ApplyWireMaterial.Invoke(null, new object[] {CompareFunction.Always});
-						const float quarter = 0.25f * blendBoxSize;
-						const float half = quarter * 2;
-						const float threeQuarters = half + quarter;
-						float lowGreyVal = EditorGUIUtility.isProSkin ? 0.25f : 0.75f;
-						Color lowGrey = new Color(lowGreyVal, lowGreyVal, lowGreyVal);
-						DrawLineFast(new Vector2(quarter, 0), new Vector2(quarter, blendBoxSize), lowGrey);
-						DrawLineFast(new Vector2(quarter, 0), new Vector2(quarter, blendBoxSize), lowGrey);
-						DrawLineFast(new Vector2(threeQuarters, 0), new Vector2(threeQuarters, blendBoxSize), lowGrey);
-						DrawLineFast(new Vector2(0, quarter), new Vector2(blendBoxSize, quarter), lowGrey);
-						DrawLineFast(new Vector2(0, threeQuarters), new Vector2(blendBoxSize, threeQuarters), lowGrey);
-						DrawLineFast(new Vector2(half, 0), new Vector2(half, blendBoxSize), Color.grey);
-						DrawLineFast(new Vector2(0, half), new Vector2(blendBoxSize, half), Color.grey);
-						GL.End();
+					GL.Begin(Application.platform == RuntimePlatform.WindowsEditor ? GL.QUADS : GL.LINES);
+					ApplyWireMaterialDelegate.Invoke(CompareFunction.Always);
+					const float quarter = 0.25f * blendBoxSize;
+					const float half = quarter * 2;
+					const float threeQuarters = half + quarter;
+					float lowGreyVal = EditorGUIUtility.isProSkin ? 0.25f : 0.75f;
+					Color lowGrey = new Color(lowGreyVal, lowGreyVal, lowGreyVal);
+					DrawLineFast(new Vector2(blendRect.x + quarter, blendRect.y), new Vector2(blendRect.x + quarter, blendRect.y + blendBoxSize), lowGrey);
+					DrawLineFast(new Vector2(blendRect.x + quarter, blendRect.y), new Vector2(blendRect.x + quarter, blendRect.y + blendBoxSize), lowGrey);
+					DrawLineFast(new Vector2(blendRect.x + threeQuarters, blendRect.y), new Vector2(blendRect.x + threeQuarters, blendRect.y + blendBoxSize), lowGrey);
+					DrawLineFast(new Vector2(blendRect.x, blendRect.y + quarter), new Vector2(blendRect.x + blendBoxSize, blendRect.y + quarter), lowGrey);
+					DrawLineFast(new Vector2(blendRect.x, blendRect.y + threeQuarters), new Vector2(blendRect.x + blendBoxSize, blendRect.y + threeQuarters), lowGrey);
+					DrawLineFast(new Vector2(blendRect.x + half, blendRect.y), new Vector2(blendRect.x + half, blendRect.y + blendBoxSize), Color.grey);
+					DrawLineFast(new Vector2(blendRect.x, blendRect.y + half), new Vector2(blendRect.x + blendBoxSize, blendRect.y + half), Color.grey);
+					GL.End();
 
-						GUI.Label(new Rect(0, blendBoxSize - 15, blendBoxSize, 15), b2D.XLabel, EditorStyles.centeredGreyMiniLabel);
-						Matrix4x4 matrixP = GUI.matrix;
-						GUIUtility.RotateAroundPivot(-90, new Vector2(0, blendBoxSize));
-						GUI.Label(new Rect(0, blendBoxSize - 15, blendBoxSize, 15), b2D.YLabel, EditorStyles.centeredGreyMiniLabel);
-						GUI.matrix = matrixP;
+					GUI.Label(new Rect(blendRect.x + quarter, blendRect.y + half, blendBoxSize, 15), b2D.XLabel, EditorStyles.centeredGreyMiniLabel);
+					Matrix4x4 matrixP = GUI.matrix;
+					GUIUtility.RotateAroundPivot(-90, new Vector2(blendRect.x, blendRect.y) + new Vector2(half, half));
+					GUI.Label(new Rect(quarter, half - 15, blendBoxSize, 15), b2D.YLabel, EditorStyles.centeredGreyMiniLabel);
+					GUI.matrix = matrixP;
 
-						GL.Begin(Application.platform == RuntimePlatform.WindowsEditor ? GL.QUADS : GL.LINES);
-						ApplyWireMaterial.Invoke(null, new object[] {CompareFunction.Always});
-						Vector2 circlePos = InverseLerp(b2D.Min, b2D.Max, property.vector2Value);
-						circlePos.y = 1 - circlePos.y;
-						circlePos *= blendBoxSize;
-						DrawCircleFast(circlePos, blendBoxSize * 0.04f, 2, new Color(1, 0.5f, 0));
-						GL.End();
-					}
+					GL.Begin(Application.platform == RuntimePlatform.WindowsEditor ? GL.QUADS : GL.LINES);
+					ApplyWireMaterialDelegate.Invoke(CompareFunction.Always);
+					Vector2 circlePos = InverseLerp(b2D.Min, b2D.Max, property.vector2Value);
+					circlePos.y = 1 - circlePos.y;
+					circlePos *= blendBoxSize;
+					DrawCircleFast(blendRect.position + circlePos, blendBoxSize * 0.04f, 2, new Color(1, 0.5f, 0));
+					GL.End();
 				}
 
 #if UNITY_MATHEMATICS
 				bool IsFloat2() => property.propertyType == SerializedPropertyType.Generic && property.type == nameof(float2);
-				
+
 				Vector2 v;
 				if (IsFloat2())
 				{
@@ -167,11 +173,12 @@ namespace Vertx.Attributes.Editor {
 
 					return;
 				}
+
 				v = property.vector2Value;
 #else
 				Vector2 v = property.vector2Value;
 #endif
-				
+
 				using (EditorGUI.ChangeCheckScope cC = new EditorGUI.ChangeCheckScope())
 				{
 					Rect labelRect = new Rect(blendBoxSize + 5, blendBoxSize / 2f - 50, Screen.width - blendBoxSize - 5, EditorGUIUtility.singleLineHeight);
@@ -188,13 +195,18 @@ namespace Vertx.Attributes.Editor {
 						property.vector2Value = new Vector2(Mathf.Clamp(v.x, b2D.Min.x, b2D.Max.x), Mathf.Clamp(v.y, b2D.Min.y, b2D.Max.y));
 				}
 			}
+			finally
+			{
+				GUI.EndGroup();
+				Profiler.EndSample();
+			}
 		}
 
 		static Vector2 InverseLerp(Vector2 min, Vector2 max, Vector2 value) =>
 			new Vector2(
 				Mathf.InverseLerp(min.x, max.x, value.x),
 				Mathf.InverseLerp(min.y, max.y, value.y));
-	
+
 		static Vector2 Lerp(Vector2 min, Vector2 max, Vector2 value) =>
 			new Vector2(
 				Mathf.Lerp(min.x, max.x, value.x),
@@ -207,11 +219,11 @@ namespace Vertx.Attributes.Editor {
 			{
 				Vector2 tangent = (to - from).normalized;
 				Vector2 mult = new Vector2(tangent.y > tangent.x ? -1 : 1, tangent.y > tangent.x ? 1 : -1);
-				tangent = new Vector2(mult.x * tangent.y, mult.y * tangent.x) * 0.5f;
+				tangent = new Vector2(mult.x * tangent.y, mult.y * tangent.x) * 0.25f;
 				GL.Vertex(new Vector3(from.x + tangent.x, from.y + tangent.y, 0f));
 				GL.Vertex(new Vector3(from.x - tangent.x, from.y - tangent.y, 0f));
-				GL.Vertex(new Vector3(to.x + tangent.x, to.y + tangent.y, 0f));
 				GL.Vertex(new Vector3(to.x - tangent.x, to.y - tangent.y, 0f));
+				GL.Vertex(new Vector3(to.x + tangent.x, to.y + tangent.y, 0f));
 			}
 			else
 			{
@@ -227,8 +239,8 @@ namespace Vertx.Attributes.Editor {
 			GL.Color(color);
 			for (int i = 1; i <= circleDivisions; i++)
 			{
-				float vC = Mathf.PI * 2 * (i / (float) circleDivisions - 1 / (float) circleDivisions);
-				float vP = Mathf.PI * 2 * (i / (float) circleDivisions);
+				float vC = Mathf.PI * 2 * (i / (float)circleDivisions - 1 / (float)circleDivisions);
+				float vP = Mathf.PI * 2 * (i / (float)circleDivisions);
 				Vector2 from = position + new Vector2(Mathf.Sin(vP) * radius, Mathf.Cos(vP) * radius);
 				Vector2 to = position + new Vector2(Mathf.Sin(vC) * radius, Mathf.Cos(vC) * radius);
 				if (Application.platform == RuntimePlatform.WindowsEditor)
@@ -253,10 +265,16 @@ namespace Vertx.Attributes.Editor {
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => blendBoxSize;
 
-		private MethodInfo applyWireMaterial;
-
-		private MethodInfo ApplyWireMaterial =>
-			applyWireMaterial ?? (applyWireMaterial =
-				typeof(HandleUtility).GetMethod("ApplyWireMaterial", BindingFlags.NonPublic | BindingFlags.Static, null, new[] {typeof(CompareFunction)}, null));
+		private static readonly Action<CompareFunction> ApplyWireMaterialDelegate =
+			(Action<CompareFunction>)Delegate.CreateDelegate(
+				typeof(Action<CompareFunction>),
+				typeof(HandleUtility).GetMethod(
+					"ApplyWireMaterial",
+					BindingFlags.NonPublic | BindingFlags.Static,
+					null,
+					new[] { typeof(CompareFunction) },
+					null
+				)
+			);
 	}
 }

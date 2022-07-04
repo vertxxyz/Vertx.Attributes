@@ -1,5 +1,7 @@
 ﻿using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
@@ -17,6 +19,13 @@ namespace Vertx.Attributes.Editor
 			GUI.enabled = false;
 			EditorGUI.PropertyField(position, property, label, true);
 			GUI.enabled = true;
+		}
+		
+		public override VisualElement CreatePropertyGUI(SerializedProperty property)
+		{
+			var field = new PropertyField(property);
+			field.SetEnabled(false);
+			return field;
 		}
 	}
 }
