@@ -16,7 +16,7 @@ namespace Vertx.Attributes.Editor
 			SerializedProperty property,
 			GUIContent label)
 		{
-			if (Application.isPlaying)
+			if (Application.IsPlaying(property.serializedObject.targetObject))
 			{
 				GUI.enabled = false;
 				EditorGUI.PropertyField(position, property, label, true);
@@ -29,7 +29,7 @@ namespace Vertx.Attributes.Editor
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var field = new PropertyField(property);
-			field.SetEnabled(!Application.IsPlaying(property.objectReferenceValue));
+			field.SetEnabled(!Application.IsPlaying(property.serializedObject.targetObject));
 			return field;
 		}
 	}
