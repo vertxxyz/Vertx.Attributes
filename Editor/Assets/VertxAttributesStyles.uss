@@ -1,0 +1,19 @@
+.vertx-min-max-slider__field {
+    min-width: 40px;
+    width: 70px;
+}
+
+.vertx-min-max-slider > .unity-min-max-slider__input {
+    margin-left: 8px;
+    margin-right: 2px;
+}
+
+.vertx-progress-bar {
+    flex-direction: column;
+}
+
+.vertx-progress-bar__root {
+    margin-top: 3px;
+    margin-left: 0;
+    margin-right: 0;
+}

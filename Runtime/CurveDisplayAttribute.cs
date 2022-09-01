@@ -16,6 +16,7 @@ namespace Vertx.Attributes
 		public readonly CurveDisplay Display;
 		public readonly Rect Rect;
 		public readonly Color Color;
+		public float Height { get; set; } = -1;
 
 		public CurveDisplayAttribute(int minX, int minY, int maxX, int maxY)
 		{

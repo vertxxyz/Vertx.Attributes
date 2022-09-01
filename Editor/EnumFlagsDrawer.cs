@@ -5,12 +5,15 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
 	public class EnumFlagsDrawer : PropertyDrawer
 	{
+		public override VisualElement CreatePropertyGUI(SerializedProperty property) => new BetterEnumFlagsField(property, ((EnumFlagsAttribute)attribute).HideObsoleteNames);
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var flagsAttribute = (EnumFlagsAttribute)attribute;
@@ -33,7 +36,7 @@ namespace Vertx.Attributes.Editor
 
 		private static readonly Dictionary<Type, ValueAndNames> lookup = new Dictionary<Type, ValueAndNames>();
 
-		private class ValueAndNames
+		internal class ValueAndNames
 		{
 			private readonly string noneName = "Nothing";
 			private readonly Dictionary<int, string> valueToNames = new Dictionary<int, string>();

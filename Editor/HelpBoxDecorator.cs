@@ -1,13 +1,39 @@
 using System;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(HelpBoxAttribute))]
 	public class HelpBoxDecorator : DecoratorDrawer
 	{
+#if UNITY_2020_1_OR_NEWER
+		public override VisualElement CreatePropertyGUI()
+		{
+			var a = (HelpBoxAttribute)attribute;
+			HelpBoxMessageType type;
+			switch (a.Type)
+			{
+				case HelpBoxAttribute.MessageType.None:
+					type = HelpBoxMessageType.None;
+					break;
+				case HelpBoxAttribute.MessageType.Info:
+					type = HelpBoxMessageType.Info;
+					break;
+				case HelpBoxAttribute.MessageType.Warning:
+					type = HelpBoxMessageType.Warning;
+					break;
+				case HelpBoxAttribute.MessageType.Error:
+					type = HelpBoxMessageType.Error;
+					break;
+				default:
+					goto case HelpBoxAttribute.MessageType.None;
+			}
+			return new HelpBox(a.Text, type);
+		}
+#endif
+		
 		public override void OnGUI(Rect position)
 		{
 			position.height -= EditorGUIUtility.standardVerticalSpacing;

@@ -15,7 +15,7 @@ namespace Vertx.Attributes
 		public string Text { get; }
 		public MessageType Type { get; }
 
-		public HelpBoxAttribute(string text, MessageType type)
+		public HelpBoxAttribute(string text, MessageType type = MessageType.Info)
 		{
 			Text = text;
 			Type = type;
