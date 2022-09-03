@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Vertx.Attributes
+﻿namespace Vertx.Attributes
 {
-	public class KeyCodeAttribute : PropertyAttribute { }
+	public class KeyCodeAttribute : EnumDropdownAttribute { }
 }

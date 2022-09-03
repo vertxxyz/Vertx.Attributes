@@ -1,27 +1,80 @@
 ﻿using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
+
+// ReSharper disable ConvertToNullCoalescingCompoundAssignment
 
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(KeyCodeAttribute))]
-	public class KeyCodeAttributeDrawer : PropertyDrawer
+	public class KeyCodeAttributeDrawer : EnumDropdownDrawer
 	{
-		private GUIStyle objectFieldStyle;
-		private GUIStyle ObjectFieldStyle => objectFieldStyle ?? (objectFieldStyle = "IN ObjectField");
+		public const string UssClassName = "vertx-keycode-dropdown";
+		public const string PickerUssClassName = UssClassName + "__picker";
+		public const string ActivePickerUssClassName = PickerUssClassName + "--active";
 
-		const float widthInput = 18;
+		private GUIStyle _objectFieldStyle;
+		private GUIStyle ObjectFieldStyle => _objectFieldStyle ?? (_objectFieldStyle = "IN ObjectField");
+
+		private const float widthInput = 18;
+
+		private class AcceptInput : VisualElement
+		{
+			public AcceptInput(SerializedProperty property)
+			{
+				AddToClassList(ObjectField.selectorUssClassName);
+				AddToClassList(PickerUssClassName);
+				RegisterCallback<ClickEvent, SerializedProperty>((evt, args) =>
+				{
+					var target = (VisualElement)evt.target;
+					target.focusable = true;
+					target.Focus();
+					target.AddToClassList(ActivePickerUssClassName);
+					target.RegisterCallback<KeyDownEvent, SerializedProperty>(CaptureKeyboard, args);
+					evt.StopPropagation();
+				}, property);
+				RegisterCallback<FocusOutEvent>(evt =>
+				{
+					var target = (VisualElement)evt.target;
+					target.focusable = false;
+					target.RemoveFromClassList(ActivePickerUssClassName);
+					target.UnregisterCallback<KeyDownEvent, SerializedProperty>(CaptureKeyboard);
+					evt.StopPropagation();
+				});
+			}
+
+			private static void CaptureKeyboard(KeyDownEvent evt, SerializedProperty p)
+			{
+				var target = (VisualElement)evt.target;
+				if (evt.keyCode != KeyCode.Escape)
+				{
+					p.intValue = (int)Event.current.keyCode;
+					p.serializedObject.ApplyModifiedProperties();
+				}
+
+				target.Blur();
+			}
+		}
+
+
+		public override VisualElement CreatePropertyGUI(SerializedProperty property)
+		{
+			VisualElement root = base.CreatePropertyGUI(property);
+			root.AddToClassList(UssClassName);
+			root.Add(new AcceptInput(property));
+			return root;
+		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			//KeyCodeAttribute a = attribute as KeyCodeAttribute;
-			position = EditorGUI.PrefixLabel(position, new GUIContent(property.displayName));
 			position.width -= widthInput;
 
-			Rect pickerRect = new Rect(position.x + position.width, position.y, widthInput, position.height);
-			int id = GUIUtility.GetControlID((int) pickerRect.x, FocusType.Keyboard, pickerRect);
+			Rect pickerRect = new Rect(position.xMax, position.y, widthInput, position.height);
+			int id = GUIUtility.GetControlID((int)pickerRect.x, FocusType.Keyboard, pickerRect);
 			GUI.color = GUIUtility.keyboardControl == id ? Color.green : Color.white;
 
-			EditorGUI.PropertyField(position, property, GUIContent.none);
+			base.OnGUI(position, property, label);
 			position.x += position.width;
 			position.width = widthInput;
 
@@ -37,7 +90,7 @@ namespace Vertx.Attributes.Editor
 			if (GUIUtility.keyboardControl == id && Event.current.type == EventType.KeyUp)
 			{
 				if (Event.current.keyCode != KeyCode.Escape)
-					property.enumValueIndex = KeyCodeToEnumIndex(property, Event.current.keyCode);
+					property.intValue = (int)Event.current.keyCode;
 				Event.current.Use();
 				GUIUtility.keyboardControl = -1;
 			}
@@ -45,18 +98,6 @@ namespace Vertx.Attributes.Editor
 				Event.current.Use();
 
 			GUI.color = Color.white;
-		}
-
-		private static int KeyCodeToEnumIndex(SerializedProperty keyCodeProperty, KeyCode keyCode)
-		{
-			string[] keyCodeNames = keyCodeProperty.enumNames;
-			for (int i = 0; i < keyCodeNames.Length; i++)
-			{
-				if (keyCodeNames[i].Equals(keyCode.ToString()))
-					return i;
-			}
-
-			return 0;
 		}
 	}
 }
