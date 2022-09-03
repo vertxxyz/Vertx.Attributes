@@ -20,6 +20,11 @@ Attributes and Property Drawers/Decorators for Unity
 > **Note**  
 > These implementations perform no logic to implement nested property drawers.
 
+---
+If you find this resource helpful:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z42ZYHB)
+
 ## Installation
 
 <details>

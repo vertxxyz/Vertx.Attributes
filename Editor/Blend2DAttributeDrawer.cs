@@ -4,6 +4,7 @@ using UnityEditor;
 using System.Reflection;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 #if UNITY_MATHEMATICS
 using Unity.Mathematics;
 #endif
@@ -13,7 +14,33 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(Blend2DAttribute))]
 	public class Blend2DAttributeDrawer : PropertyDrawer
 	{
+		public const string UssStyleName = "vertx-blend-2d";
+		public const string BoxUssStyleName = UssStyleName + "__box";
+		public const string RightUssStyleName = UssStyleName + "__right";
+		public const string LabelUssStyleName = UssStyleName + "__label";
+		
 		private const float blendBoxSize = 150f;
+
+		public override VisualElement CreatePropertyGUI(SerializedProperty property)
+		{
+			var root = new VisualElement();
+			root.AddToClassList(UssStyleName);
+			root.AddToClassList(BaseField<int>.ussClassName);
+			
+			var box = new VisualElement();
+			box.AddToClassList(BoxUssStyleName);
+			root.Add(box);
+
+			var right = new VisualElement();
+			right.AddToClassList(RightUssStyleName);
+			root.Add(right);
+
+			var label = new Label(property.displayName);
+			label.AddToClassList(LabelUssStyleName);
+			right.Add(label);
+			
+			return root;
+		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
