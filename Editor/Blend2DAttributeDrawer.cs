@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Reflection;
+using UnityEditor.UIElements;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
@@ -11,24 +12,177 @@ using Unity.Mathematics;
 
 namespace Vertx.Attributes.Editor
 {
+	public class Blend2DBoxElement : VisualElement, IBindable
+	{
+		public const string BoxUssStyleName = Blend2DAttributeDrawer.UssStyleName + "__box";
+		public const string BoxInteriorStyleName = BoxUssStyleName + "__interior";
+		public const string BoxLabelStyleName = BoxUssStyleName + "__label";
+		public const string BoxLabelXStyleName = BoxLabelStyleName + "--x";
+		public const string BoxLabelYStyleName = BoxLabelStyleName + "--y";
+
+		private readonly SerializedProperty _x;
+		private readonly SerializedProperty _y;
+		private readonly Vector2 _xLimit;
+		private readonly Vector2 _yLimit;
+		private readonly VisualElement _interior;
+
+		public Blend2DBoxElement(
+			SerializedProperty x,
+			SerializedProperty y,
+			Vector2 xLimit,
+			Vector2 yLimit,
+			string xText,
+			string yText
+		)
+		{
+			var xLabel = new Label(xText) { pickingMode = PickingMode.Ignore };
+			xLabel.AddToClassList(BoxLabelStyleName);
+			xLabel.AddToClassList(BoxLabelXStyleName);
+			Add(xLabel);
+
+			var yLabel = new Label(yText) { pickingMode = PickingMode.Ignore };
+			yLabel.AddToClassList(BoxLabelStyleName);
+			yLabel.AddToClassList(BoxLabelYStyleName);
+			Add(yLabel);
+
+			_interior = new VisualElement { pickingMode = PickingMode.Ignore };
+			_interior.AddToClassList(BoxInteriorStyleName);
+			_interior.generateVisualContent += GenerateVisualContent;
+			Add(_interior);
+
+			_x = x;
+			_y = y;
+			_xLimit = xLimit;
+			_yLimit = yLimit;
+			AddToClassList(BoxUssStyleName);
+			this.TrackPropertyValue(x, _ => _interior.MarkDirtyRepaint());
+			this.TrackPropertyValue(y, _ => _interior.MarkDirtyRepaint());
+
+			RegisterCallback<PointerDownEvent, Blend2DBoxElement>((evt, args) =>
+			{
+				switch (evt.button)
+				{
+					case 0:
+						args.CapturePointer(evt.pointerId);
+						PositionOnClick(args, evt.localPosition);
+						break;
+					case 1:
+						Blend2DAttributeDrawer.ShowContextMenu(
+							args._x, args._y,
+							args._xLimit,
+							args._yLimit
+						);
+						break;
+					default:
+						return;
+				}
+
+				evt.StopPropagation();
+			}, this);
+			RegisterCallback<PointerMoveEvent, Blend2DBoxElement>((evt, args) =>
+			{
+				if (!args.HasPointerCapture(evt.pointerId))
+					return;
+				PositionOnClick(args, evt.localPosition);
+				evt.StopPropagation();
+			}, this);
+			RegisterCallback<PointerUpEvent, Blend2DBoxElement>((evt, args) =>
+			{
+				args.ReleasePointer(evt.pointerId);
+				evt.StopPropagation();
+			}, this);
+		}
+
+		private static void PositionOnClick(Blend2DBoxElement element, Vector2 localPosition)
+		{
+			element._x.floatValue =
+				Mathf.Lerp(
+					element._xLimit.x,
+					element._xLimit.y,
+					Mathf.InverseLerp(0, element.layout.width, localPosition.x)
+				);
+			element._y.floatValue =
+				Mathf.Lerp(
+					element._yLimit.x,
+					element._yLimit.y,
+					1 - Mathf.InverseLerp(0, element.layout.height, localPosition.y)
+				);
+			if (element._x.serializedObject.ApplyModifiedProperties())
+				element._interior.MarkDirtyRepaint();
+		}
+
+		private void GenerateVisualContent(MeshGenerationContext obj)
+		{
+			Painter2D painter2D = obj.painter2D;
+			painter2D.strokeColor = Color.grey;
+			float width = layout.width;
+			float height = layout.height;
+			float halfHeight = height * 0.5f;
+			float halfWidth = width * 0.5f;
+			painter2D.lineWidth = 1;
+			painter2D.BeginPath();
+			painter2D.MoveTo(new Vector2(0, halfHeight));
+			painter2D.LineTo(new Vector2(width, halfHeight));
+			painter2D.MoveTo(new Vector2(halfWidth, 0));
+			painter2D.LineTo(new Vector2(halfWidth, height));
+			painter2D.Stroke();
+
+			float xNormalised = Mathf.InverseLerp(_xLimit.x, _xLimit.y, _x.floatValue);
+			float yNormalised = 1 - Mathf.InverseLerp(_yLimit.x, _yLimit.y, _y.floatValue);
+
+			painter2D.strokeColor = Blend2DAttributeDrawer.CircleColor;
+			painter2D.BeginPath();
+			painter2D.Arc(
+				new Vector2(xNormalised * width, yNormalised * height),
+				Blend2DAttributeDrawer.CircleRadius,
+				default,
+				Angle.Turns(1)
+			);
+			painter2D.Stroke();
+		}
+
+		public IBinding binding { get; set; }
+		public string bindingPath { get; set; }
+	}
+
 	[CustomPropertyDrawer(typeof(Blend2DAttribute))]
 	public class Blend2DAttributeDrawer : PropertyDrawer
 	{
 		public const string UssStyleName = "vertx-blend-2d";
-		public const string BoxUssStyleName = UssStyleName + "__box";
 		public const string RightUssStyleName = UssStyleName + "__right";
 		public const string LabelUssStyleName = UssStyleName + "__label";
-		
+		public const string FieldDraggerUssStyleName = UssStyleName + "__field-dragger";
+		public const string SmallLabelUssStyleName = LabelUssStyleName + "--small";
+
 		private const float blendBoxSize = 150f;
+		public const float CircleRadius = blendBoxSize * 0.04f;
+
+		public static Color LowGrey
+		{
+			get
+			{
+				float lowGreyVal = EditorGUIUtility.isProSkin ? 0.25f : 0.75f;
+				Color lowGrey = new Color(lowGreyVal, lowGreyVal, lowGreyVal);
+				return lowGrey;
+			}
+		}
+
+		public static Color CircleColor => new Color(1, 0.5f, 0);
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
+			Blend2DAttribute b2D = (Blend2DAttribute)attribute;
+			var xLimit = new Vector2(b2D.Min.x, b2D.Max.x);
+			var yLimit = new Vector2(b2D.Min.y, b2D.Max.y);
+			SerializedProperty x = property.FindPropertyRelative("x");
+			SerializedProperty y = property.FindPropertyRelative("y");
+
+
 			var root = new VisualElement();
 			root.AddToClassList(UssStyleName);
 			root.AddToClassList(BaseField<int>.ussClassName);
-			
-			var box = new VisualElement();
-			box.AddToClassList(BoxUssStyleName);
+
+			var box = new Blend2DBoxElement(x, y, xLimit, yLimit, b2D.XLabel, b2D.YLabel);
 			root.Add(box);
 
 			var right = new VisualElement();
@@ -36,9 +190,44 @@ namespace Vertx.Attributes.Editor
 			root.Add(right);
 
 			var label = new Label(property.displayName);
+			label.AddToClassList(BaseField<int>.ussClassName);
 			label.AddToClassList(LabelUssStyleName);
 			right.Add(label);
-			
+
+			AddProperty(b2D.XLabel, x, xLimit);
+			AddProperty(b2D.YLabel, y, yLimit);
+
+			void AddProperty(string text, SerializedProperty p, Vector2 limits)
+			{
+				// This setup lets us have a non-delayed dragger, and a delayed float field.
+				// The float field is delayed so our clamping doesn't mess with typing (UIToolkit is frustrating).
+				var fieldDragger = new FloatField(text)
+				{
+					bindingPath = p.propertyPath
+				};
+				var field = new FloatField
+				{
+					bindingPath = p.propertyPath,
+					isDelayed = true
+				};
+				fieldDragger.AddToClassList(FieldDraggerUssStyleName);
+				fieldDragger.Q<Label>().AddToClassList(SmallLabelUssStyleName);
+				right.Add(fieldDragger);
+				right.Add(field);
+
+				fieldDragger.RegisterCallback<ChangeEvent<float>, Vector2>(Clamp, limits);
+				field.RegisterCallback<ChangeEvent<float>, Vector2>(Clamp, limits);
+
+				static void Clamp(ChangeEvent<float> evt, Vector2 args)
+				{
+					var floatField = (FloatField)evt.target;
+					if (evt.newValue <= args.x)
+						floatField.SetValueWithoutNotify(args.x);
+					else if (evt.newValue >= args.y)
+						floatField.SetValueWithoutNotify(args.y);
+				}
+			}
+
 			return root;
 		}
 
@@ -83,27 +272,13 @@ namespace Vertx.Attributes.Editor
 						case 1:
 							if (!blendRect.Contains(e.mousePosition))
 								break;
-							GenericMenu menu = new GenericMenu();
-
-							menu.AddItem(new GUIContent("Center"), false, () =>
-							{
-#if UNITY_MATHEMATICS
-								if (IsFloat2())
-								{
-									SerializedProperty x = property.FindPropertyRelative("x");
-									SerializedProperty y = property.FindPropertyRelative("y");
-									Vector2 value = Vector2.Lerp(b2D.Min, b2D.Max, 0.5f);
-									x.floatValue = value.x;
-									y.floatValue = value.y;
-									property.serializedObject.ApplyModifiedProperties();
-									return;
-								}
-#endif
-								property.vector2Value = Vector2.Lerp(b2D.Min, b2D.Max, 0.5f);
-								property.serializedObject.ApplyModifiedProperties();
-							});
-
-							menu.ShowAsContext();
+							SerializedProperty x = property.FindPropertyRelative("x");
+							SerializedProperty y = property.FindPropertyRelative("y");
+							ShowContextMenu(
+								x, y,
+								new Vector2(b2D.Min.x, b2D.Max.x),
+								new Vector2(b2D.Min.y, b2D.Max.y)
+							);
 							e.Use();
 							break;
 					}
@@ -134,7 +309,7 @@ namespace Vertx.Attributes.Editor
 						e.Use();
 					}
 				}
-				
+
 				GUI.Box(blendRect, "", EditorStyles.helpBox);
 
 				if (e.type == EventType.Repaint)
@@ -144,8 +319,7 @@ namespace Vertx.Attributes.Editor
 					const float quarter = 0.25f * blendBoxSize;
 					const float half = quarter * 2;
 					const float threeQuarters = half + quarter;
-					float lowGreyVal = EditorGUIUtility.isProSkin ? 0.25f : 0.75f;
-					Color lowGrey = new Color(lowGreyVal, lowGreyVal, lowGreyVal);
+					Color lowGrey = LowGrey;
 					DrawLineFast(new Vector2(blendRect.x + quarter, blendRect.y), new Vector2(blendRect.x + quarter, blendRect.y + blendBoxSize), lowGrey);
 					DrawLineFast(new Vector2(blendRect.x + quarter, blendRect.y), new Vector2(blendRect.x + quarter, blendRect.y + blendBoxSize), lowGrey);
 					DrawLineFast(new Vector2(blendRect.x + threeQuarters, blendRect.y), new Vector2(blendRect.x + threeQuarters, blendRect.y + blendBoxSize), lowGrey);
@@ -166,7 +340,7 @@ namespace Vertx.Attributes.Editor
 					Vector2 circlePos = InverseLerp(b2D.Min, b2D.Max, property.vector2Value);
 					circlePos.y = 1 - circlePos.y;
 					circlePos *= blendBoxSize;
-					DrawCircleFast(blendRect.position + circlePos, blendBoxSize * 0.04f, 2, new Color(1, 0.5f, 0));
+					DrawCircleFast(blendRect.position + circlePos, CircleRadius, 2, CircleColor);
 					GL.End();
 				}
 
@@ -179,6 +353,7 @@ namespace Vertx.Attributes.Editor
 					SerializedProperty x = property.FindPropertyRelative("x");
 					SerializedProperty y = property.FindPropertyRelative("y");
 					v = new Vector2(x.floatValue, y.floatValue);
+					// ReSharper disable once ConvertToUsingDeclaration
 					using (EditorGUI.ChangeCheckScope cC = new EditorGUI.ChangeCheckScope())
 					{
 						Rect labelRect = new Rect(blendBoxSize + 5, blendBoxSize / 2f - 50, Screen.width - blendBoxSize - 5, EditorGUIUtility.singleLineHeight);
@@ -227,6 +402,20 @@ namespace Vertx.Attributes.Editor
 				GUI.EndGroup();
 				Profiler.EndSample();
 			}
+		}
+
+		public static void ShowContextMenu(SerializedProperty x, SerializedProperty y, Vector2 xLimit, Vector2 yLimit)
+		{
+			GenericMenu menu = new GenericMenu();
+
+			menu.AddItem(new GUIContent("Center"), false, () =>
+			{
+				x.floatValue = Mathf.Lerp(xLimit.x, xLimit.y, 0.5f);
+				y.floatValue = Mathf.Lerp(yLimit.x, yLimit.y, 0.5f);
+				x.serializedObject.ApplyModifiedProperties();
+			});
+
+			menu.ShowAsContext();
 		}
 
 		static Vector2 InverseLerp(Vector2 min, Vector2 max, Vector2 value) =>
@@ -292,16 +481,18 @@ namespace Vertx.Attributes.Editor
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => blendBoxSize;
 
-		private static readonly Action<CompareFunction> ApplyWireMaterialDelegate =
-			(Action<CompareFunction>)Delegate.CreateDelegate(
-				typeof(Action<CompareFunction>),
-				typeof(HandleUtility).GetMethod(
-					"ApplyWireMaterial",
-					BindingFlags.NonPublic | BindingFlags.Static,
-					null,
-					new[] { typeof(CompareFunction) },
-					null
-				)
-			);
+		private static Action<CompareFunction> s_ApplyWireMaterialDelegate;
+		private static Action<CompareFunction> ApplyWireMaterialDelegate
+			=> s_ApplyWireMaterialDelegate
+			   ?? (s_ApplyWireMaterialDelegate = (Action<CompareFunction>)Delegate.CreateDelegate(
+				   typeof(Action<CompareFunction>),
+				   typeof(HandleUtility).GetMethod(
+					   "ApplyWireMaterial",
+					   BindingFlags.NonPublic | BindingFlags.Static,
+					   null,
+					   new[] { typeof(CompareFunction) },
+					   null
+				   )
+			   ));
 	}
 }
