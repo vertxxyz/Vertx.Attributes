@@ -10,14 +10,15 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(KeyCodeAttribute))]
 	public class KeyCodeAttributeDrawer : EnumDropdownDrawer
 	{
-		public const string UssClassName = "vertx-keycode-dropdown";
-		public const string PickerUssClassName = UssClassName + "__picker";
-		public const string ActivePickerUssClassName = PickerUssClassName + "--active";
-
 		private GUIStyle _objectFieldStyle;
 		private GUIStyle ObjectFieldStyle => _objectFieldStyle ?? (_objectFieldStyle = "IN ObjectField");
 
 		private const float widthInput = 18;
+
+#if UNITY_2020_1_OR_NEWER
+		public const string UssClassName = "vertx-keycode-dropdown";
+		public const string PickerUssClassName = UssClassName + "__picker";
+		public const string ActivePickerUssClassName = PickerUssClassName + "--active";
 
 		private class AcceptInput : VisualElement
 		{
@@ -65,6 +66,7 @@ namespace Vertx.Attributes.Editor
 			root.Add(new AcceptInput(property));
 			return root;
 		}
+#endif
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

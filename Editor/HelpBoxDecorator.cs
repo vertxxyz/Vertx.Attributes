@@ -8,7 +8,7 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(HelpBoxAttribute))]
 	public class HelpBoxDecorator : DecoratorDrawer
 	{
-#if UNITY_2020_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
 		public override VisualElement CreatePropertyGUI()
 		{
 			var a = (HelpBoxAttribute)attribute;

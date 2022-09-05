@@ -34,7 +34,7 @@ namespace Vertx.Attributes.Editor
 					throw new NotImplementedException($"{curveDisplay.Display} is improperly initialised.");
 			}
 
-			curveField.AddToClassList(CurveField.alignedFieldUssClassName);
+			curveField.AddToClassList(StyleSheetUtils.AlignedFieldUssClassName);
 			if (curveDisplay.Height > 0)
 				curveField.style.height = curveDisplay.Height;
 

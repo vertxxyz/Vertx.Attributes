@@ -1,5 +1,9 @@
 # Vertx.Attributes
-Attributes and Property Drawers/Decorators for Unity
+Attributes and Property Drawers/Decorators for Unity.  
+All drawers support IMGUI and UIToolkit.
+
+> **Warning**  
+> Unity 2019.4+. UIToolkit support is very version-specific.
 
 
 ## Attributes

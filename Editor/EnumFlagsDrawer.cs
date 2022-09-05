@@ -9,23 +9,9 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(EnumFlagsAttribute))]
 	public class EnumFlagsDrawer : PropertyDrawer
 	{
-		private delegate FieldInfo GetTypeFromPropertyBase(SerializedProperty property, out Type type);
-
-		private static GetTypeFromPropertyBase s_GetTypeFromProperty;
-
-		private static Type GetTypeFromProperty(SerializedProperty property)
-		{
-			if (s_GetTypeFromProperty == null)
-			{
-				MethodInfo method = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor").GetMethod("GetFieldInfoFromProperty", BindingFlags.Static | BindingFlags.NonPublic);
-				s_GetTypeFromProperty = (GetTypeFromPropertyBase)Delegate.CreateDelegate(typeof(GetTypeFromPropertyBase), method);
-			}
-
-			s_GetTypeFromProperty(property, out Type type);
-			return type;
-		}
-
+#if UNITY_2021_1_OR_NEWER
 		public override VisualElement CreatePropertyGUI(SerializedProperty property) => new BetterEnumFlagsField(property, fieldInfo, ((EnumFlagsAttribute)attribute).HideObsoleteNames);
+#endif
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

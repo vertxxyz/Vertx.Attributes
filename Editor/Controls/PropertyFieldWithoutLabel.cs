@@ -1,3 +1,4 @@
+#if UNITY_2020_1_OR_NEWER
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -23,3 +24,4 @@ namespace Vertx.Attributes.Editor
 		}, this);
 	}
 }
+#endif

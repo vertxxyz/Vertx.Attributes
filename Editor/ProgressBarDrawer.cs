@@ -7,6 +7,7 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(ProgressAttribute))]
 	public class ProgressBarDrawer : PropertyDrawer
 	{
+#if UNITY_2021_1_OR_NEWER
 		public const string UssClassName = "vertx-progress-bar";
 		public const string RootUssClassName = UssClassName + "__root";
 		
@@ -48,6 +49,7 @@ namespace Vertx.Attributes.Editor
 			root.Add(bar);
 			return root;
 		}
+#endif
 
 		private static string GetText(float value, ProgressAttribute attribute, out float normalised)
 		{

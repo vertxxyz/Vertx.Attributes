@@ -1,3 +1,4 @@
+#if UNITY_2021_1_OR_NEWER
 using System;
 using System.Reflection;
 using UnityEditor;
@@ -45,3 +46,4 @@ namespace Vertx.Attributes.Editor
 		}
 	}
 }
+#endif

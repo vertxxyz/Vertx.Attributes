@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 #if UNITY_MATHEMATICS
@@ -11,8 +12,10 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(MinMaxAttribute))]
 	public class MinMaxDrawer : PropertyDrawer
 	{
+#if UNITY_2020_1_OR_NEWER
 		public const string UssClassName = "vertx-min-max-slider";
 		public const string FieldUssClassName = UssClassName + "__field";
+#endif
 
 		private static string GetErrorMessage(SerializedProperty property) => $"{nameof(MinMaxAttribute)} only supports float, int, float2, int2, {nameof(Vector2)}, and {nameof(Vector2Int)}. Property type was {property.propertyType}";
 
@@ -70,16 +73,13 @@ namespace Vertx.Attributes.Editor
 			return type;
 		}
 
+#if UNITY_2020_1_OR_NEWER
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			PropertyType type = DeterminePropertyTypes(property);
 			if (type == PropertyType.None)
 			{
-#if UNITY_2020_1_OR_NEWER
 				return new HelpBox(GetErrorMessage(property), HelpBoxMessageType.Error);
-#else
-				return new Label(GetErrorMessage(property));
-#endif
 			}
 
 			// Collect properties.
@@ -161,7 +161,7 @@ namespace Vertx.Attributes.Editor
 			}
 			
 			if (a.Aligned)
-				minMaxSlider.AddToClassList(MinMaxSlider.alignedFieldUssClassName); // There's truly not enough room with this enabled, so it's optional.
+				minMaxSlider.AddToClassList(StyleSheetUtils.AlignedFieldUssClassName); // There's truly not enough room with this enabled, so it's optional.
 			
 			minMaxSlider.RegisterCallback<ChangeEvent<Vector2>, (PropertyType type, SerializedProperty property)>((evt, args) =>
 			{
@@ -230,6 +230,7 @@ namespace Vertx.Attributes.Editor
 
 			return minMaxSlider;
 		}
+#endif
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

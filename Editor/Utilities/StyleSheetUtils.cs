@@ -9,6 +9,13 @@ namespace Vertx.Attributes.Editor
 {
 	internal static class StyleSheetUtils
 	{
+		public static readonly string AlignedFieldUssClassName =
+#if UNITY_2022_2_OR_NEWER
+			BaseField<int>.alignedFieldUssClassName;
+#else
+			BaseField<int>.ussClassName + "__aligned";
+#endif
+
 		private static readonly Dictionary<string, StyleSheet> s_SheetLookup = new Dictionary<string, StyleSheet>();
 
 		/// <summary>

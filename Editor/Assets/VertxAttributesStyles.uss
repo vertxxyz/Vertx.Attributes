@@ -23,8 +23,8 @@
 }
 
 .vertx-blend-2d__box {
-    height: 150px;
-    width: 150px;
+    height: 151px;
+    width: 151px;
     border-width: 1px;
     border-color: rgba(0, 0, 0, 0.6);
     background-color: rgba(255, 255, 255, 0.036);

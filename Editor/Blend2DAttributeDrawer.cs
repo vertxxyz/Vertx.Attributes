@@ -12,6 +12,7 @@ using Unity.Mathematics;
 
 namespace Vertx.Attributes.Editor
 {
+#if UNITY_2021_1_OR_NEWER
 	public class Blend2DBoxElement : VisualElement, IBindable
 	{
 		public const string BoxUssStyleName = Blend2DAttributeDrawer.UssStyleName + "__box";
@@ -24,7 +25,7 @@ namespace Vertx.Attributes.Editor
 		private readonly SerializedProperty _y;
 		private readonly Vector2 _xLimit;
 		private readonly Vector2 _yLimit;
-		private readonly VisualElement _interior;
+		private readonly VisualElement _cursor;
 
 		public Blend2DBoxElement(
 			SerializedProperty x,
@@ -35,6 +36,11 @@ namespace Vertx.Attributes.Editor
 			string yText
 		)
 		{
+			var interior = new VisualElement { pickingMode = PickingMode.Ignore };
+			interior.AddToClassList(BoxInteriorStyleName);
+			interior.generateVisualContent += GenerateVisualContentInterior;
+			Add(interior);
+			
 			var xLabel = new Label(xText) { pickingMode = PickingMode.Ignore };
 			xLabel.AddToClassList(BoxLabelStyleName);
 			xLabel.AddToClassList(BoxLabelXStyleName);
@@ -44,19 +50,19 @@ namespace Vertx.Attributes.Editor
 			yLabel.AddToClassList(BoxLabelStyleName);
 			yLabel.AddToClassList(BoxLabelYStyleName);
 			Add(yLabel);
-
-			_interior = new VisualElement { pickingMode = PickingMode.Ignore };
-			_interior.AddToClassList(BoxInteriorStyleName);
-			_interior.generateVisualContent += GenerateVisualContent;
-			Add(_interior);
+			
+			_cursor = new VisualElement { pickingMode = PickingMode.Ignore };
+			_cursor.AddToClassList(BoxInteriorStyleName);
+			_cursor.generateVisualContent += GenerateVisualContentCursor;
+			Add(_cursor);
 
 			_x = x;
 			_y = y;
 			_xLimit = xLimit;
 			_yLimit = yLimit;
 			AddToClassList(BoxUssStyleName);
-			this.TrackPropertyValue(x, _ => _interior.MarkDirtyRepaint());
-			this.TrackPropertyValue(y, _ => _interior.MarkDirtyRepaint());
+			this.TrackPropertyValue(x, _ => _cursor.MarkDirtyRepaint());
+			this.TrackPropertyValue(y, _ => _cursor.MarkDirtyRepaint());
 
 			RegisterCallback<PointerDownEvent, Blend2DBoxElement>((evt, args) =>
 			{
@@ -108,10 +114,10 @@ namespace Vertx.Attributes.Editor
 					1 - Mathf.InverseLerp(0, element.layout.height, localPosition.y)
 				);
 			if (element._x.serializedObject.ApplyModifiedProperties())
-				element._interior.MarkDirtyRepaint();
+				element._cursor.MarkDirtyRepaint();
 		}
 
-		private void GenerateVisualContent(MeshGenerationContext obj)
+		private void GenerateVisualContentInterior(MeshGenerationContext obj)
 		{
 			Painter2D painter2D = obj.painter2D;
 			painter2D.strokeColor = Color.grey;
@@ -119,6 +125,7 @@ namespace Vertx.Attributes.Editor
 			float height = layout.height;
 			float halfHeight = height * 0.5f;
 			float halfWidth = width * 0.5f;
+			
 			painter2D.lineWidth = 1;
 			painter2D.BeginPath();
 			painter2D.MoveTo(new Vector2(0, halfHeight));
@@ -126,6 +133,29 @@ namespace Vertx.Attributes.Editor
 			painter2D.MoveTo(new Vector2(halfWidth, 0));
 			painter2D.LineTo(new Vector2(halfWidth, height));
 			painter2D.Stroke();
+			
+			float quarterHeight = halfHeight * 0.5f;
+			float quarterWidth = halfWidth * 0.5f;
+			painter2D.strokeColor = Blend2DAttributeDrawer.LowGrey;
+			painter2D.BeginPath();
+			painter2D.MoveTo(new Vector2(0, quarterHeight));
+			painter2D.LineTo(new Vector2(width, quarterHeight));
+			painter2D.MoveTo(new Vector2(0, halfHeight + quarterHeight));
+			painter2D.LineTo(new Vector2(width, halfHeight + quarterHeight));
+			painter2D.MoveTo(new Vector2(quarterWidth, 0));
+			painter2D.LineTo(new Vector2(quarterWidth, height));
+			painter2D.MoveTo(new Vector2(halfWidth + quarterWidth, 0));
+			painter2D.LineTo(new Vector2(halfWidth + quarterWidth, height));
+			painter2D.Stroke();
+		}
+		
+		private void GenerateVisualContentCursor(MeshGenerationContext obj)
+		{
+			Painter2D painter2D = obj.painter2D;
+			painter2D.strokeColor = Color.grey;
+			float width = layout.width;
+			float height = layout.height;
+			painter2D.lineWidth = 1;
 
 			float xNormalised = Mathf.InverseLerp(_xLimit.x, _xLimit.y, _x.floatValue);
 			float yNormalised = 1 - Mathf.InverseLerp(_yLimit.x, _yLimit.y, _y.floatValue);
@@ -144,30 +174,32 @@ namespace Vertx.Attributes.Editor
 		public IBinding binding { get; set; }
 		public string bindingPath { get; set; }
 	}
-
+#endif
+	
 	[CustomPropertyDrawer(typeof(Blend2DAttribute))]
 	public class Blend2DAttributeDrawer : PropertyDrawer
 	{
-		public const string UssStyleName = "vertx-blend-2d";
-		public const string RightUssStyleName = UssStyleName + "__right";
-		public const string LabelUssStyleName = UssStyleName + "__label";
-		public const string FieldDraggerUssStyleName = UssStyleName + "__field-dragger";
-		public const string SmallLabelUssStyleName = LabelUssStyleName + "--small";
-
-		private const float blendBoxSize = 150f;
+		private const float blendBoxSize = 151f;
 		public const float CircleRadius = blendBoxSize * 0.04f;
 
 		public static Color LowGrey
 		{
 			get
 			{
-				float lowGreyVal = EditorGUIUtility.isProSkin ? 0.25f : 0.75f;
+				float lowGreyVal = EditorGUIUtility.isProSkin ? 0.3f : 0.7f;
 				Color lowGrey = new Color(lowGreyVal, lowGreyVal, lowGreyVal);
 				return lowGrey;
 			}
 		}
 
 		public static Color CircleColor => new Color(1, 0.5f, 0);
+
+#if UNITY_2021_1_OR_NEWER
+		public const string UssStyleName = "vertx-blend-2d";
+		public const string RightUssStyleName = UssStyleName + "__right";
+		public const string LabelUssStyleName = UssStyleName + "__label";
+		public const string FieldDraggerUssStyleName = UssStyleName + "__field-dragger";
+		public const string SmallLabelUssStyleName = LabelUssStyleName + "--small";
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
@@ -218,7 +250,7 @@ namespace Vertx.Attributes.Editor
 				fieldDragger.RegisterCallback<ChangeEvent<float>, Vector2>(Clamp, limits);
 				field.RegisterCallback<ChangeEvent<float>, Vector2>(Clamp, limits);
 
-				static void Clamp(ChangeEvent<float> evt, Vector2 args)
+				void Clamp(ChangeEvent<float> evt, Vector2 args)
 				{
 					var floatField = (FloatField)evt.target;
 					if (evt.newValue <= args.x)
@@ -230,6 +262,7 @@ namespace Vertx.Attributes.Editor
 
 			return root;
 		}
+#endif
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -316,17 +349,20 @@ namespace Vertx.Attributes.Editor
 				{
 					GL.Begin(Application.platform == RuntimePlatform.WindowsEditor ? GL.QUADS : GL.LINES);
 					ApplyWireMaterialDelegate.Invoke(CompareFunction.Always);
-					const float quarter = 0.25f * blendBoxSize;
-					const float half = quarter * 2;
-					const float threeQuarters = half + quarter;
+					
+					const float quarter = 0.25f * blendBoxSize,
+						half = quarter * 2,
+						threeQuarters = half + quarter;
+					
 					Color lowGrey = LowGrey;
+					Color grey = Color.grey;
 					DrawLineFast(new Vector2(blendRect.x + quarter, blendRect.y), new Vector2(blendRect.x + quarter, blendRect.y + blendBoxSize), lowGrey);
 					DrawLineFast(new Vector2(blendRect.x + quarter, blendRect.y), new Vector2(blendRect.x + quarter, blendRect.y + blendBoxSize), lowGrey);
 					DrawLineFast(new Vector2(blendRect.x + threeQuarters, blendRect.y), new Vector2(blendRect.x + threeQuarters, blendRect.y + blendBoxSize), lowGrey);
 					DrawLineFast(new Vector2(blendRect.x, blendRect.y + quarter), new Vector2(blendRect.x + blendBoxSize, blendRect.y + quarter), lowGrey);
 					DrawLineFast(new Vector2(blendRect.x, blendRect.y + threeQuarters), new Vector2(blendRect.x + blendBoxSize, blendRect.y + threeQuarters), lowGrey);
-					DrawLineFast(new Vector2(blendRect.x + half, blendRect.y), new Vector2(blendRect.x + half, blendRect.y + blendBoxSize), Color.grey);
-					DrawLineFast(new Vector2(blendRect.x, blendRect.y + half), new Vector2(blendRect.x + blendBoxSize, blendRect.y + half), Color.grey);
+					DrawLineFast(new Vector2(blendRect.x + half, blendRect.y), new Vector2(blendRect.x + half, blendRect.y + blendBoxSize), grey);
+					DrawLineFast(new Vector2(blendRect.x, blendRect.y + half), new Vector2(blendRect.x + blendBoxSize, blendRect.y + half), grey);
 					GL.End();
 
 					GUI.Label(new Rect(blendRect.x + quarter, blendRect.y + half, blendBoxSize, 15), b2D.XLabel, EditorStyles.centeredGreyMiniLabel);
@@ -430,6 +466,12 @@ namespace Vertx.Attributes.Editor
 
 		private static void DrawLineFast(Vector2 from, Vector2 to, Color color)
 		{
+			// Align perfectly along a pixel
+			from.x = Mathf.Ceil(from.x) - 0.5f;
+			from.y = Mathf.Ceil(from.y) - 0.5f;
+			to.x = Mathf.Ceil(to.x) - 0.5f;
+			to.y = Mathf.Ceil(to.y) - 0.5f;
+			
 			GL.Color(color);
 			if (Application.platform == RuntimePlatform.WindowsEditor)
 			{

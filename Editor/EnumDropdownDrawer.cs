@@ -8,6 +8,7 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(EnumDropdownAttribute))]
 	public class EnumDropdownDrawer : PropertyDrawer
 	{
+#if UNITY_2021_1_OR_NEWER
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var dropdownButton = new DropdownButton(
@@ -35,6 +36,7 @@ namespace Vertx.Attributes.Editor
 			}, property);
 			return dropdownButton;
 		}
+#endif
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
