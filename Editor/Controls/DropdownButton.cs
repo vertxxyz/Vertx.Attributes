@@ -9,7 +9,7 @@ namespace Vertx.Attributes.Editor
 	/// <summary>
 	/// A UIToolkit GenericMenu dropdown button.
 	/// </summary>
-	internal class DropdownButton : BaseField<string>
+	internal sealed class DropdownButton : BaseField<string>
 	{
 		public const string UssClassName = "vertx-dropdown-button";
 		public const string LabelUssClassName = UssClassName + "__label";

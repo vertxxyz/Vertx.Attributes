@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
-	public class BetterEnumFlagsField : VisualElement
+	public sealed class BetterEnumFlagsField : VisualElement
 	{
 		private EnumFlagsValueAndNames _enumFlagsValueAndNames;
 

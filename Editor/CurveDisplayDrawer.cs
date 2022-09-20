@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(CurveDisplayAttribute))]
-	public class CurveDisplayDrawer : PropertyDrawer
+	public sealed class CurveDisplayDrawer : PropertyDrawer
 	{
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{

@@ -2,5 +2,5 @@
 
 namespace Vertx.Attributes
 {
-	public class ReadOnlyAttribute : PropertyAttribute { }
+	public sealed class ReadOnlyAttribute : PropertyAttribute { }
 }

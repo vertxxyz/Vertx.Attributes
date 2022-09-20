@@ -2,7 +2,7 @@
 
 namespace Vertx.Attributes
 {
-	public class MinMaxAttribute : PropertyAttribute
+	public sealed class MinMaxAttribute : PropertyAttribute
 	{
 		public readonly float Min;
 		public readonly float Max;

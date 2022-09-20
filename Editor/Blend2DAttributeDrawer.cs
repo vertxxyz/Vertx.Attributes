@@ -13,7 +13,7 @@ using Unity.Mathematics;
 namespace Vertx.Attributes.Editor
 {
 #if UNITY_2021_1_OR_NEWER
-	public class Blend2DBoxElement : VisualElement, IBindable
+	public sealed class Blend2DBoxElement : VisualElement, IBindable
 	{
 		public const string BoxUssStyleName = Blend2DAttributeDrawer.UssStyleName + "__box";
 		public const string BoxInteriorStyleName = BoxUssStyleName + "__interior";
@@ -177,7 +177,7 @@ namespace Vertx.Attributes.Editor
 #endif
 	
 	[CustomPropertyDrawer(typeof(Blend2DAttribute))]
-	public class Blend2DAttributeDrawer : PropertyDrawer
+	public sealed class Blend2DAttributeDrawer : PropertyDrawer
 	{
 		private const float blendBoxSize = 151f;
 		public const float CircleRadius = blendBoxSize * 0.04f;

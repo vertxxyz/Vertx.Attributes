@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(HelpBoxAttribute))]
-	public class HelpBoxDecorator : DecoratorDrawer
+	public sealed class HelpBoxDecorator : DecoratorDrawer
 	{
 #if UNITY_2022_1_OR_NEWER
 		public override VisualElement CreatePropertyGUI()

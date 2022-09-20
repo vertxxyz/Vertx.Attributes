@@ -6,7 +6,7 @@ namespace Vertx.Attributes
 	/// Provide a text field that operates like a button which opens a directory dialog
 	/// A help box is shown when the resulting string is invalid
 	/// </summary>
-	public class DirectoryAttribute : PropertyAttribute
+	public sealed class DirectoryAttribute : PropertyAttribute
 	{
 		public readonly bool DirectoryIsLocalToProject;
 

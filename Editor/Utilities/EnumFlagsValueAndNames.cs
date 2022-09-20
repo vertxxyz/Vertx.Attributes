@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Vertx.Attributes.Editor
 {
-	internal class EnumFlagsValueAndNames
+	internal sealed class EnumFlagsValueAndNames
 	{
 		private static readonly Dictionary<Type, EnumFlagsValueAndNames> lookup = new Dictionary<Type, EnumFlagsValueAndNames>();
 		private readonly string noneName = "Nothing";

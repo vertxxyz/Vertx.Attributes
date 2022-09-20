@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
-	internal class PropertyFieldWithoutLabel : PropertyField
+	internal sealed class PropertyFieldWithoutLabel : PropertyField
 	{
 		public PropertyFieldWithoutLabel(SerializedProperty serializedProperty) : base(serializedProperty) => RegisterCallback<GeometryChangedEvent, VisualElement>((_, root) =>
 		{

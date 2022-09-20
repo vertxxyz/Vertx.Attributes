@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(DirectoryAttribute))]
-	public class DirectoryAttributeDrawer : PropertyDrawer
+	public sealed class DirectoryAttributeDrawer : PropertyDrawer
 	{
 		private enum LocationValidity
 		{

@@ -10,7 +10,7 @@ using Unity.Mathematics;
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(MinMaxAttribute))]
-	public class MinMaxDrawer : PropertyDrawer
+	public sealed class MinMaxDrawer : PropertyDrawer
 	{
 #if UNITY_2020_1_OR_NEWER
 		public const string UssClassName = "vertx-min-max-slider";

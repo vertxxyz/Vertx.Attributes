@@ -1,4 +1,4 @@
 ﻿namespace Vertx.Attributes
 {
-	public class KeyCodeAttribute : EnumDropdownAttribute { }
+	public sealed class KeyCodeAttribute : EnumDropdownAttribute { }
 }

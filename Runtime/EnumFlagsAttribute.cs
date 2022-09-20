@@ -5,7 +5,7 @@ namespace Vertx.Attributes
 	/// <summary>
 	/// Displays a enum bit field with multiple values instead of displaying the default 'Mixed'.
 	/// </summary>
-	public class EnumFlagsAttribute : PropertyAttribute
+	public sealed class EnumFlagsAttribute : PropertyAttribute
 	{
 		/// <summary>
 		/// Tints the 0/None enum as red if it's assigned in the inspector.

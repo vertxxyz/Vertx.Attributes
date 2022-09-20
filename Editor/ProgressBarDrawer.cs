@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(ProgressAttribute))]
-	public class ProgressBarDrawer : PropertyDrawer
+	public sealed class ProgressBarDrawer : PropertyDrawer
 	{
 #if UNITY_2021_1_OR_NEWER
 		public const string UssClassName = "vertx-progress-bar";

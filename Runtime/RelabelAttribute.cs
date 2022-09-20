@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Vertx.Attributes
 {
-	public class RelabelAttribute : PropertyAttribute
+	public sealed class RelabelAttribute : PropertyAttribute
 	{
 		public readonly string Name;
 		

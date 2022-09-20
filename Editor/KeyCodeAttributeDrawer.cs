@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(KeyCodeAttribute))]
-	public class KeyCodeAttributeDrawer : EnumDropdownDrawer
+	public sealed class KeyCodeAttributeDrawer : EnumDropdownDrawer
 	{
 		private GUIStyle _objectFieldStyle;
 		private GUIStyle ObjectFieldStyle => _objectFieldStyle ?? (_objectFieldStyle = "IN ObjectField");

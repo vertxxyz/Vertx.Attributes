@@ -5,7 +5,7 @@ namespace Vertx.Attributes
 	/// <summary>
 	/// Styles a field as a read-only progress bar.
 	/// </summary>
-	public class ProgressAttribute : PropertyAttribute
+	public sealed class ProgressAttribute : PropertyAttribute
 	{
 		public readonly float MinValue;
 		public readonly float MaxValue;

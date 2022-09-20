@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Vertx.Attributes.Editor
 {
-	internal class NaiveAdvancedDropdown<T> : AdvancedDropdown
+	internal sealed class NaiveAdvancedDropdown<T> : AdvancedDropdown
 	{
 		// ReSharper disable once ArrangeObjectCreationWhenTypeEvident
 		// ReSharper disable once StaticMemberInGenericType
