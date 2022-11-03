@@ -21,6 +21,7 @@ All drawers support IMGUI and UIToolkit.
 | **Blend2D**            | Displays a 2D trackpad-like interface/graph for `Vector2` or Unity.Mathematics `float2` values.<br/>*string xLabel, yLabel* - Labels for the X and Y axes of the graph.<br/>*float minX, minY, maxX, maxY* - The bounds of the graph.                                                                                                                                                                                        |
 | **HelpBox**            | Decorates a field with a help box.                                                                                                                                                                                                                                                                                                                                                                                           |
 | **File**/**Directory** | Styles string fields with a button to pick files/directories.<br/>*bool fileIsLocalToProject* - Constrains the selection to be within the Assets directory.                                                                                                                                                                                                                                                                  |
+| **Inline**             | Removes the foldout from a group of serialized fields.                                                                                                                                                                                                                                                                                                                                                                       |
 
 > **Note**  
 > These implementations perform no logic to implement nested property drawers.
@@ -65,7 +66,7 @@ You can also add it directly from GitHub on Unity 2019.4+. Note that you won't b
 - paste `https://github.com/vertxxyz/Vertx.Attributes.git`
 - click <kbd>Add</kbd>  
   **or**
-- Edit your `manifest.json` file to contain `"com.vertx.editors": "https://github.com/vertxxyz/Vertx.Attributes.git"`,
+- Edit your `manifest.json` file to contain `"com.vertx.attributes": "https://github.com/vertxxyz/Vertx.Attributes.git"`,
 
 To update the package with new changes, remove the lock from the `packages-lock.json` file.
 </details>

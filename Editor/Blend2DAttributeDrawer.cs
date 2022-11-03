@@ -12,7 +12,7 @@ using Unity.Mathematics;
 
 namespace Vertx.Attributes.Editor
 {
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
 	public sealed class Blend2DBoxElement : VisualElement, IBindable
 	{
 		public const string BoxUssStyleName = Blend2DAttributeDrawer.UssStyleName + "__box";
@@ -194,7 +194,7 @@ namespace Vertx.Attributes.Editor
 
 		public static Color CircleColor => new Color(1, 0.5f, 0);
 
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
 		public const string UssStyleName = "vertx-blend-2d";
 		public const string RightUssStyleName = UssStyleName + "__right";
 		public const string LabelUssStyleName = UssStyleName + "__label";
