@@ -1,0 +1,105 @@
+.vertx-min-max-slider__field {
+    min-width: 40px;
+    width: 70px;
+}
+
+.vertx-min-max-slider > .unity-min-max-slider__input {
+    margin-left: 8px;
+    margin-right: 2px;
+}
+
+.vertx-progress-bar {
+    flex-direction: column;
+}
+
+.vertx-progress-bar__root {
+    margin-top: 3px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.vertx-blend-2d {
+    flex-direction: row;
+}
+
+.vertx-blend-2d__box {
+    height: 151px;
+    width: 151px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(255, 255, 255, 0.036);
+    overflow: hidden;
+}
+
+.vertx-blend-2d__box__interior {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: -1px;
+}
+
+.vertx-blend-2d__box__label {
+    color: grey;
+    -unity-font-style: bold;
+    font-size: 10px;
+}
+
+.vertx-blend-2d__box__label--x {
+    position: absolute;
+    transform-origin: center bottom;
+    translate: 50% 0;
+    right: 25%;
+    top: 50%;
+}
+
+.vertx-blend-2d__box__label--y {
+    position: absolute;
+    transform-origin: center bottom;
+    translate: -50% -100%;
+    rotate: -90deg;
+    left: 50%;
+    top: 25%;
+}
+
+.vertx-blend-2d__right {
+    margin-left: 2px;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.vertx-blend-2d__label {
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.vertx-blend-2d__field-dragger > FloatInput {
+    display: none;
+}
+
+.vertx-blend-2d__label--small {
+    font-size: 11px;
+    -unity-font-style: bold;
+}
+
+
+.vertx-dropdown-button__dropdown {
+    flex-shrink: 1;
+}
+
+.vertx-dropdown-button__icon {
+    min-height: auto;
+    max-height: initial;
+    min-width: auto;
+    max-width: initial;
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 0;
+    width: 17px;
+}
+
+.vertx-keycode-dropdown__picker--active {
+    -unity-background-image-tint-color: greenyellow;
+}

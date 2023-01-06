@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2022-09-01
+- Added UIToolkit support to all property drawers. Support may not be present in all Unity versions.
+- Added a Height property to CurveDisplay, allowing for larger display of the curve field.
+- Added [EnumDropdown], this shows an AdvancedDropdown instead of a GenericMenu, allowing for scrolling in long enums.
+- Added [Inline], removes the foldout from a group of serialized fields.
+
 ## [1.4.1] - 2022-08-28
 - Added Relabel drawer.
 - Fixed issue with UIToolkit EditorOnly drawer.

@@ -5,7 +5,7 @@ namespace Vertx.Attributes
 	/// <summary>
 	/// Apply to an Animation Curve to restrict its Range and/or change its Color.
 	/// </summary>
-	public class CurveDisplayAttribute : PropertyAttribute
+	public sealed class CurveDisplayAttribute : PropertyAttribute
 	{
 		public enum CurveDisplay
 		{
@@ -16,6 +16,7 @@ namespace Vertx.Attributes
 		public readonly CurveDisplay Display;
 		public readonly Rect Rect;
 		public readonly Color Color;
+		public float Height { get; set; } = -1;
 
 		public CurveDisplayAttribute(int minX, int minY, int maxX, int maxY)
 		{

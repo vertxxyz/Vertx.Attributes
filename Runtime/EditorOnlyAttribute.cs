@@ -2,5 +2,5 @@
 
 namespace Vertx.Attributes
 {
-	public class EditorOnlyAttribute : PropertyAttribute { }
+	public sealed class EditorOnlyAttribute : PropertyAttribute { }
 }

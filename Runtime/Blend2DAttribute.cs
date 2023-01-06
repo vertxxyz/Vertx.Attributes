@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Vertx.Attributes
 {
 	[AttributeUsage(AttributeTargets.Field)]
-	public class Blend2DAttribute : PropertyAttribute
+	public sealed class Blend2DAttribute : PropertyAttribute
 	{
 		public readonly string XLabel;
 		public readonly string YLabel;
