@@ -1,55 +1,35 @@
 # Vertx.Attributes
-Attributes and Property Drawers/Decorators for Unity
+Attributes and Property Drawers/Decorators for Unity.  
+All drawers support IMGUI and UIToolkit.
+
+> **Warning**  
+> Unity 2019.4+. UIToolkit support is very version-specific.
 
 
 ## Attributes
-- **[EditorOnly]**  
-Field is only editable in Edit-Mode.
-- **[ReadOnly]**  
-Field is not editable.
-  
 
-- **[EnumFlags]**  
-Displays a enum bit field with multiple values instead of displaying the default *Mixed*.  
-*bool RedZero* - optional parameter to tint the field red when 0/None is selected.
-  
+| Attribute              | Description                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **EditorOnly**         | Field is only editable in Edit mode.                                                                                                                                                                                                                                                                                                                                                                                         |
+| **ReadOnly**           | Field is not editable.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **EnumFlags**          | Displays a enum bit field with multiple values instead of displaying the default *Mixed*.<br/>*bool RedZero* - optional parameter to tint the field red when 0/None is selected.<br/>*HideObsoleteNames* - Hides enum values marked with `System.ObsoleteAttribute`.                                                                                                                                                         |
+| **EnumDropdown**       | Shows an AdvancedDropdown instead of a GenericMenu.<br/>This allows for proper scrolling on Windows, and is pretty much invaluable for large enums.<br/>*bool RedZero* - optional parameter to tint the field red when 0/None is selected.                                                                                                                                                                                   |
+| **KeyCode**            | Adds a picker to rebind keys by using the keyboard.                                                                                                                                                                                                                                                                                                                                                                          |
+| **MinMax**             | A Range slider for `Vector2`, `Vector2Int`, Unity.Mathematics `float2` and `int2` types.<br/>Can be used with two `float` or `int` by applying `[HideInInspector]` to the second field.<br/>*float min, max* - the min and max bounds to the slider.<br/>*string label* - optional label override, generally used for int/float fields.<br/>*Aligned* -  UIToolkit-specific setting that aligns with fields in the inspector | 
+| **Progress**           | Displays values in a progress bar styling.<br/>*float maxValue = 1* - defines the upper range to be remapped.                                                                                                                                                                                                                                                                                                                | 
+| **CurveDisplay**       | Clamps a Curve to a new range and/or restyles its color.<br/>*int minX, minY, maxX, maxY* - the bounds of the curve.<br/>*float r, g, b* - colour values used for display.                                                                                                                                                                                                                                                   | 
+| **Blend2D**            | Displays a 2D trackpad-like interface/graph for `Vector2` or Unity.Mathematics `float2` values.<br/>*string xLabel, yLabel* - Labels for the X and Y axes of the graph.<br/>*float minX, minY, maxX, maxY* - The bounds of the graph.                                                                                                                                                                                        |
+| **HelpBox**            | Decorates a field with a help box.                                                                                                                                                                                                                                                                                                                                                                                           |
+| **File**/**Directory** | Styles string fields with a button to pick files/directories.<br/>*bool fileIsLocalToProject* - Constrains the selection to be within the Assets directory.                                                                                                                                                                                                                                                                  |
+| **Inline**             | Removes the foldout from a group of serialized fields.                                                                                                                                                                                                                                                                                                                                                                       |
 
-- **[KeyCode]**  
-Adds a picker to rebind keys by using the keyboard.
-  
+> **Note**  
+> These implementations perform no logic to implement nested property drawers.
 
-- **[MinMax]**  
-A Range slider for Vector2, Vector2Int. Has support for Unity.Mathematics float2 and int2 types.  
-Can be used with float and int by applying [HideInInspector] to the second field.  
-*float min, max* - the min and max bounds to the slider.  
-*string label* - optional label to override the default. This is generally used for int/float fields.
-  
+---
+If you find this resource helpful:
 
-- **[Progress]**  
-Displays values in a progress bar styling.  
-*float maxValue = 1* - defines the upper range to be remapped.  
-  
-
-- **[CurveDisplay]**  
-Clamps a Curve to a new range and/or restyles its color  
-*int minX, minY, maxX, maxY* - the bounds of the curve.  
-*float r, g, b* - colour values used for display.  
-  
-
-- **[Blend2D]**  
-Displays a 2D trackpad-like interface/graph for Vector2 values. Has support for Unity.Mathematics float2.  
-*string xLabel, yLabel* - Labels for the X and Y axes of the graph.  
-*float minX, minY, maxX, maxY* - The bounds of the graph.  
-
-
-- **[HelpBox]**  
-Decorates a field with a help box.
-
-
-- **[File]**
-- **[Directory]**  
-Styles string fields with a button to pick files/directories.  
-*bool fileIsLocalToProject* - Constrains the selection to be within the Assets directory.  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z42ZYHB)
 
 ## Installation
 
@@ -86,7 +66,7 @@ You can also add it directly from GitHub on Unity 2019.4+. Note that you won't b
 - paste `https://github.com/vertxxyz/Vertx.Attributes.git`
 - click <kbd>Add</kbd>  
   **or**
-- Edit your `manifest.json` file to contain `"com.vertx.editors": "https://github.com/vertxxyz/Vertx.Attributes.git"`,
+- Edit your `manifest.json` file to contain `"com.vertx.attributes": "https://github.com/vertxxyz/Vertx.Attributes.git"`,
 
 To update the package with new changes, remove the lock from the `packages-lock.json` file.
 </details>
