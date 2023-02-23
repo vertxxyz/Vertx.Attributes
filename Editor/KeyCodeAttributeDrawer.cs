@@ -64,6 +64,7 @@ namespace Vertx.Attributes.Editor
 			VisualElement root = base.CreatePropertyGUI(property);
 			root.AddToClassList(UssClassName);
 			root.Add(new AcceptInput(property));
+			root.RegisterCallback<AttachToPanelEvent, string>(StyleSheetUtils.AddStyleSheetOnPanelEvent, SheetPaths.AttributeStyles);
 			return root;
 		}
 #endif

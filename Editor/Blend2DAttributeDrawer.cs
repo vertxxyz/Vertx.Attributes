@@ -211,6 +211,7 @@ namespace Vertx.Attributes.Editor
 
 
 			var root = new VisualElement();
+			root.RegisterCallback<AttachToPanelEvent, string>(StyleSheetUtils.AddStyleSheetOnPanelEvent, SheetPaths.AttributeStyles);
 			root.AddToClassList(UssStyleName);
 			root.AddToClassList(BaseField<int>.ussClassName);
 
