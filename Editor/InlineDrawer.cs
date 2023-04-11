@@ -1,6 +1,12 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+#if UNITY_2021_1_OR_NEWER
+using UnityEngine.Pool;
+#else
+using System.Collections.Generic;
+#endif
 using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
@@ -36,6 +42,11 @@ namespace Vertx.Attributes.Editor
 			return EditorGUI.GetPropertyHeight(property, label) - EditorGUIUtility.singleLineHeight;
 		}
 
+#if !UNITY_2021_1_OR_NEWER
+		// ReSharper disable once ArrangeObjectCreationWhenTypeEvident
+		private static readonly List<VisualElement> elements = new List<VisualElement>();
+#endif
+		
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			property.isExpanded = true;
@@ -54,12 +65,24 @@ namespace Vertx.Attributes.Editor
 					return;
 
 				VisualElement root = new VisualElement();
-
-				for (int i = contentContainer.childCount - 1; i >= 0; i--)
+				
+#if UNITY_2021_1_OR_NEWER
+				using (ListPool<VisualElement>.Get(out List<VisualElement> elements))
+#endif
 				{
-					VisualElement element = contentContainer[i];
-					contentContainer.RemoveAt(i);
-					root.Add(element);
+					for (int i = 0; i < contentContainer.childCount; i++)
+					{
+						VisualElement element = contentContainer[i];
+						elements.Add(element);
+					}
+					
+					contentContainer.Clear();
+					
+					foreach (VisualElement element in elements)
+						root.Add(element);
+#if !UNITY_2021_1_OR_NEWER
+					elements.Clear();
+#endif
 				}
 
 				foldout.RemoveFromHierarchy();

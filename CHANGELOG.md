@@ -4,6 +4,9 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2023-04-11
+- Fixed [Inline] UIToolkit drawer drawing fields in reverse order.
+
 ## [1.5.1] - 2023-02-23
 - Fixed certain UIToolkit fields missing styles when created alone.
 
