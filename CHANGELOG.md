@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.0]
+### Changed
+- Renamed `[ReadOnly]` to `[ReadOnlyField]` to avoid naming conflicts with the Collections namespace.
+- Renamed `[EditorOnly]` to `[EditorOnlyField]` because of the above change.
+
 ## [1.5.2] - 2023-04-11
 - Fixed [Inline] UIToolkit drawer drawing fields in reverse order.
 
