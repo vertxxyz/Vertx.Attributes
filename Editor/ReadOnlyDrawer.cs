@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
-	[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
+	[CustomPropertyDrawer(typeof(ReadOnlyFieldAttribute))]
 	public sealed class ReadOnlyDrawer : PropertyDrawer
 	{
 		public override float GetPropertyHeight(SerializedProperty property,
