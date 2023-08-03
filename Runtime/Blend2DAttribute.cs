@@ -1,9 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Vertx.Attributes
 {
-	[AttributeUsage(AttributeTargets.Field)]
 	public sealed class Blend2DAttribute : PropertyAttribute
 	{
 		public readonly string XLabel;

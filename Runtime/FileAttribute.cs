@@ -6,7 +6,7 @@ namespace Vertx.Attributes
 	/// Provide a text field that operates like a button which opens a file dialog
 	/// A help box is shown when the resulting string is invalid
 	/// </summary>
-	public class FileAttribute : PropertyAttribute
+	public sealed class FileAttribute : PropertyAttribute
 	{
 		public readonly bool FileIsLocalToProject;
 

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.7.0]
 ### Added
 - `[Layer]`, for ints representing a single layer.
+- `[Button(methodName)]`, IMGUI is not supported.
 
 ## [1.6.0]
 ### Changed
