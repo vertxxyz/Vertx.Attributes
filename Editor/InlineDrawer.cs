@@ -4,8 +4,6 @@ using UnityEditor.UIElements;
 using UnityEngine;
 #if UNITY_2021_1_OR_NEWER
 using UnityEngine.Pool;
-#else
-using System.Collections.Generic;
 #endif
 using UnityEngine.UIElements;
 

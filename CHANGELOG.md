@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - `[Layer]`, for ints representing a single layer.
 - `[Button(methodName)]`, IMGUI is not supported.
+- `[CustomHeader("Label")]`, a `HeaderAttribute` that allows margin and font size to be overridden, IMGUI is not supported.
 
 ## [1.6.0]
 ### Changed

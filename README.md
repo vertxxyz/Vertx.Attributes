@@ -3,7 +3,7 @@ Attributes and Property Drawers/Decorators for Unity.
 All drawers support IMGUI and UIToolkit.
 
 > **Warning**  
-> Unity 2019.4+.  
+> Unity 2019.4+  
 > UIToolkit support is version-specific.
 
 
@@ -25,6 +25,7 @@ All drawers support IMGUI and UIToolkit.
 | `HelpBox`          | Decorates a field with a help box.                                                                                                                                                                                                                                                                                                                                                                                           | Yes           |
 | `File`/`Directory` | Styles string fields with a button to pick files/directories.<br/>*bool fileIsLocalToProject* - Constrains the selection to be within the Assets directory.                                                                                                                                                                                                                                                                  | Yes           |
 | `Inline`           | Removes the foldout from a group of serialized fields.                                                                                                                                                                                                                                                                                                                                                                       | Yes           |
+| `CustomHeader`     | A `HeaderAttribute` that allows margin and font size to be overridden.                                                                                                                                                                                                                                                                                                                                                       | **No**        |
 
 > **Note**  
 > These implementations perform no logic to implement nested property drawers.

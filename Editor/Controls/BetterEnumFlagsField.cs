@@ -10,8 +10,6 @@ namespace Vertx.Attributes.Editor
 {
 	public sealed class BetterEnumFlagsField : VisualElement
 	{
-		private EnumFlagsValueAndNames _enumFlagsValueAndNames;
-
 		private delegate FieldInfo GetTypeFromPropertyBase(SerializedProperty property, out Type type);
 
 		private static GetTypeFromPropertyBase s_GetTypeFromProperty;
@@ -20,7 +18,7 @@ namespace Vertx.Attributes.Editor
 		{
 			if (s_GetTypeFromProperty == null)
 			{
-				MethodInfo method = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor").GetMethod("GetFieldInfoFromProperty", BindingFlags.Static | BindingFlags.NonPublic);
+				MethodInfo method = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor")!.GetMethod("GetFieldInfoFromProperty", BindingFlags.Static | BindingFlags.NonPublic)!;
 				s_GetTypeFromProperty = (GetTypeFromPropertyBase)Delegate.CreateDelegate(typeof(GetTypeFromPropertyBase), method);
 			}
 
@@ -28,10 +26,10 @@ namespace Vertx.Attributes.Editor
 			return type;
 		}
 
-		public BetterEnumFlagsField(SerializedProperty property, FieldInfo fieldInfo, bool hideObsoleteNames) : base()
+		public BetterEnumFlagsField(SerializedProperty property, FieldInfo fieldInfo, bool hideObsoleteNames)
 		{
-			_enumFlagsValueAndNames = EnumFlagsValueAndNames.Get(fieldInfo, hideObsoleteNames);
-			var dropdownButton = new DropdownButton(property.displayName, _enumFlagsValueAndNames.GetName(property.intValue));
+			EnumFlagsValueAndNames enumFlagsValueAndNames = EnumFlagsValueAndNames.Get(fieldInfo, hideObsoleteNames);
+			var dropdownButton = new DropdownButton(property.displayName, enumFlagsValueAndNames.GetName(property.intValue));
 			dropdownButton.RegisterClickCallback<(SerializedProperty property, EnumFlagsValueAndNames valuesAndNames)>(
 				(_, button, data) =>
 				{
@@ -39,9 +37,9 @@ namespace Vertx.Attributes.Editor
 					              ?? button.worldBound;
 					data.valuesAndNames.DropDown(bounds, data.property);
 				},
-				(property, _enumFlagsValueAndNames)
+				(property, enumFlagsValueAndNames)
 			);
-			dropdownButton.TrackPropertyValue(property, p => dropdownButton.Text = _enumFlagsValueAndNames.GetName(p.intValue));
+			dropdownButton.TrackPropertyValue(property, p => dropdownButton.Text = enumFlagsValueAndNames.GetName(p.intValue));
 			Add(dropdownButton);
 		}
 	}
