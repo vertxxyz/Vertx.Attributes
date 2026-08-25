@@ -2,7 +2,6 @@
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
@@ -47,39 +46,5 @@ namespace Vertx.Attributes.Editor
 		private static void AssignColor(CurveField curveField, CurveDisplayAttribute curveDisplay) =>
 			// ReSharper disable once PossibleNullReferenceException
 			typeof(CurveField).GetField("m_CurveColor", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(curveField, curveDisplay.Color);
-
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			var curveDisplay = (CurveDisplayAttribute)attribute;
-			switch (curveDisplay.Display)
-			{
-				case CurveDisplayAttribute.CurveDisplay.RectAndColor:
-					EditorGUI.CurveField(
-						position,
-						property,
-						curveDisplay.Color,
-						curveDisplay.Rect,
-						label
-					);
-					break;
-				case CurveDisplayAttribute.CurveDisplay.ColorOnly:
-					property.animationCurveValue = EditorGUI.CurveField(
-						position,
-						label,
-						property.animationCurveValue,
-						curveDisplay.Color,
-						new Rect()
-					);
-					break;
-				default:
-					throw new NotImplementedException($"{curveDisplay.Display} is improperly initialised.");
-			}
-		}
-
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			CurveDisplayAttribute curveDisplay = (CurveDisplayAttribute)attribute;
-			return curveDisplay.Height > 0 ? curveDisplay.Height : base.GetPropertyHeight(property, label);
-		}
 	}
 }

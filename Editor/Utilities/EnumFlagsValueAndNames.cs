@@ -12,11 +12,11 @@ namespace Vertx.Attributes.Editor
 {
 	internal sealed class EnumFlagsValueAndNames
 	{
-		private static readonly Dictionary<Type, EnumFlagsValueAndNames> lookup = new Dictionary<Type, EnumFlagsValueAndNames>();
-		private readonly string noneName = "Nothing";
-		private readonly Dictionary<int, string> valueToNames = new Dictionary<int, string>();
-		private readonly Dictionary<int, string> complexNameLookup = new Dictionary<int, string>();
-		private readonly int everythingValue;
+		private static readonly Dictionary<Type, EnumFlagsValueAndNames?> s_lookup = new Dictionary<Type, EnumFlagsValueAndNames?>();
+		private readonly string _noneName = "Nothing";
+		private readonly Dictionary<int, string> _valueToNames = new Dictionary<int, string>();
+		private readonly Dictionary<int, string> _complexNameLookup = new Dictionary<int, string>();
+		private readonly int _everythingValue;
 
 		private enum SupportedTypes : byte
 		{
@@ -25,7 +25,7 @@ namespace Vertx.Attributes.Editor
 			Int
 		}
 
-		public static EnumFlagsValueAndNames Get(FieldInfo fieldInfo, bool hideObsoleteNames)
+		public static EnumFlagsValueAndNames? Get(FieldInfo fieldInfo, bool hideObsoleteNames)
 		{
 			Type enumType = fieldInfo.FieldType;
 			if (!enumType.IsEnum)
@@ -33,31 +33,31 @@ namespace Vertx.Attributes.Editor
 				if (enumType.IsGenericType)
 					enumType = enumType.GetGenericArguments().Single();
 				if (enumType.IsArray)
-					enumType = enumType.GetElementType();
+					enumType = enumType.GetElementType()!;
 			}
 
-			if (lookup.TryGetValue(enumType, out EnumFlagsValueAndNames valueAndNames))
+			if (s_lookup.TryGetValue(enumType, out EnumFlagsValueAndNames? valueAndNames))
 				return valueAndNames;
 
 			try
 			{
-				lookup.Add(enumType, valueAndNames = new EnumFlagsValueAndNames(enumType, hideObsoleteNames));
+				s_lookup.Add(enumType, valueAndNames = new EnumFlagsValueAndNames(enumType, hideObsoleteNames));
 			}
 			catch (Exception e)
 			{
 				Debug.LogException(e);
-				lookup.Add(enumType, null);
+				s_lookup.Add(enumType, null);
 				valueAndNames = null;
 			}
 
 			return valueAndNames;
 		}
 
-		private EnumFlagsValueAndNames() { }
-
 		private EnumFlagsValueAndNames(Type enumType, bool hideObsoleteNames)
 		{
-			Dictionary<string, FieldInfo> fieldLookup = enumType.GetFields(BindingFlags.Public | BindingFlags.Static).ToDictionary(k => k.Name, v => v);
+			Dictionary<string, FieldInfo> fieldLookup = enumType
+				.GetFields(BindingFlags.Public | BindingFlags.Static)
+				.ToDictionary(k => k.Name, v => v);
 
 			string[] names = Enum.GetNames(enumType);
 			Array values = Enum.GetValues(enumType);
@@ -71,27 +71,19 @@ namespace Vertx.Attributes.Editor
 				type = SupportedTypes.Byte;
 			else
 				type = SupportedTypes.Int; // Default and let any exceptions occur
-			everythingValue = 0;
-			for (int i = 0; i < values.Length; i++)
+			_everythingValue = 0;
+			for (var i = 0; i < values.Length; i++)
 			{
-				int value;
-				switch (type)
+				int value = type switch
 				{
-					case SupportedTypes.Byte:
-						value = (byte)values.GetValue(i);
-						break;
-					case SupportedTypes.Short:
-						value = (short)values.GetValue(i);
-						break;
-					case SupportedTypes.Int:
-						value = (int)values.GetValue(i);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
+					SupportedTypes.Byte => (byte)values.GetValue(i),
+					SupportedTypes.Short => (short)values.GetValue(i),
+					SupportedTypes.Int => (int)values.GetValue(i),
+					_ => throw new ArgumentOutOfRangeException()
+				};
 
 				string valueName = names[i];
-				string nicifiedName = null;
+				string? nicifiedName = null;
 				if (hideObsoleteNames && fieldLookup.TryGetValue(valueName, out var fieldInfo))
 				{
 					var obsoleteAttribute = fieldInfo.GetCustomAttribute<ObsoleteAttribute>();
@@ -106,38 +98,38 @@ namespace Vertx.Attributes.Editor
 				if (nicifiedName == null)
 					nicifiedName = ObjectNames.NicifyVariableName(valueName);
 
-				everythingValue |= value;
+				_everythingValue |= value;
 
 				if (value == 0)
 				{
-					noneName = nicifiedName;
+					_noneName = nicifiedName;
 					continue;
 				}
 
-				if (valueToNames.TryGetValue(value, out string name))
+				if (_valueToNames.TryGetValue(value, out string name))
 				{
-					valueToNames[value] = $"{name} | {nicifiedName}";
+					_valueToNames[value] = $"{name} | {nicifiedName}";
 					continue;
 				}
 
-				valueToNames.Add(value, nicifiedName);
+				_valueToNames.Add(value, nicifiedName);
 			}
 
-			valueToNames.Add(0, noneName);
+			_valueToNames.Add(0, _noneName);
 		}
 
 		public string GetName(int value)
 		{
-			if (value == everythingValue) return "Everything";
-			if (valueToNames.TryGetValue(value, out var result))
+			if (value == _everythingValue) return "Everything";
+			if (_valueToNames.TryGetValue(value, out var result))
 				return result;
 
-			if (complexNameLookup.TryGetValue(value, out result))
+			if (_complexNameLookup.TryGetValue(value, out result))
 				return result;
 
 			StringBuilder stringBuilder = new StringBuilder();
 			bool hitMax = false;
-			foreach (KeyValuePair<int, string> pair in valueToNames)
+			foreach (KeyValuePair<int, string> pair in _valueToNames)
 			{
 				if (pair.Key == 0) continue;
 				if ((pair.Key & value) == 0) continue;
@@ -156,8 +148,8 @@ namespace Vertx.Attributes.Editor
 			if (hitMax)
 			{
 				hitMax = false;
-				StringBuilder secondaryBuilder = new StringBuilder("Not ");
-				foreach (KeyValuePair<int, string> pair in valueToNames)
+				var secondaryBuilder = new StringBuilder("Not ");
+				foreach (KeyValuePair<int, string> pair in _valueToNames)
 				{
 					if (pair.Key == 0) continue;
 					if ((pair.Key & value) != 0) continue;
@@ -180,14 +172,14 @@ namespace Vertx.Attributes.Editor
 			{
 				if (!hitMax) // Remove the last ", "
 					stringBuilder.Remove(stringBuilder.Length - 2, 2);
-				complexNameLookup.Add(value, stringBuilder.ToString());
+				_complexNameLookup.Add(value, stringBuilder.ToString());
 			}
 			else
 			{
-				complexNameLookup.Add(value, "⚠️ Invalid ⚠️");
+				_complexNameLookup.Add(value, "⚠️ Invalid ⚠️");
 			}
 
-			return complexNameLookup[value];
+			return _complexNameLookup[value];
 		}
 
 		public void DropDown(Rect rect, SerializedProperty property)
@@ -196,20 +188,20 @@ namespace Vertx.Attributes.Editor
 
 			int originalValue = property.intValue;
 
-			menu.AddItem(new GUIContent(noneName), originalValue == 0, () =>
+			menu.AddItem(new GUIContent(_noneName), originalValue == 0, () =>
 			{
 				property.intValue = 0;
 				property.serializedObject.ApplyModifiedProperties();
 			});
-			menu.AddItem(new GUIContent("Everything"), originalValue == everythingValue, () =>
+			menu.AddItem(new GUIContent("Everything"), originalValue == _everythingValue, () =>
 			{
-				property.intValue = everythingValue;
+				property.intValue = _everythingValue;
 				property.serializedObject.ApplyModifiedProperties();
 			});
 
 			menu.AddSeparator("");
 
-			foreach (KeyValuePair<int, string> pair in valueToNames)
+			foreach (KeyValuePair<int, string> pair in _valueToNames)
 			{
 				if (pair.Key == 0) continue;
 				if (!IsPowerOfTwo(pair.Key)) continue;
@@ -222,7 +214,7 @@ namespace Vertx.Attributes.Editor
 
 			bool hasSeparator = false;
 
-			foreach (KeyValuePair<int, string> pair in valueToNames)
+			foreach (KeyValuePair<int, string> pair in _valueToNames)
 			{
 				if (pair.Key == 0) continue;
 				if (IsPowerOfTwo(pair.Key)) continue;

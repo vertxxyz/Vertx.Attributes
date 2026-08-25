@@ -42,7 +42,7 @@ namespace Vertx.Attributes.Editor
 		{
 			using (var scope = new EditorGUI.PropertyScope(position, label, property))
 			{
-				var buttonRect = EditorGUI.PrefixLabel(position, scope.content);
+				Rect buttonRect = EditorGUI.PrefixLabel(position, scope.content);
 				if (((EnumDropdownAttribute)attribute).RedZero && property.enumValueIndex == 0)
 					GUI.color = new Color(1f, 0.46f, 0.51f);
 				if (!GUI.Button(buttonRect, property.enumDisplayNames[property.enumValueIndex], EditorStyles.popup))

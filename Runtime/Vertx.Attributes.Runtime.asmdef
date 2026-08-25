@@ -1,7 +1,9 @@
 {
     "name": "Vertx.Attributes.Runtime",
     "rootNamespace": "Vertx.Attributes",
-    "references": [],
+    "references": [
+        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -9,6 +11,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "0.0",
+            "define": "UNITY_LOCALIZATION"
+        }
+    ],
     "noEngineReferences": false
 }

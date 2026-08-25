@@ -6,7 +6,7 @@ namespace Vertx.Attributes
 	{
 		public readonly float Min;
 		public readonly float Max;
-		public readonly GUIContent Label;
+		public readonly GUIContent? Label;
 		
 		/// <summary>
 		/// UIToolkit-specific setting that aligns fields in the inspector.

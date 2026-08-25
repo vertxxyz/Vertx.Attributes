@@ -1,6 +1,8 @@
 #if UNITY_2020_1_OR_NEWER
+#if !UNITY_2022_2_OR_NEWER
 using System;
 using UnityEditor.UIElements;
+#endif
 // Included for 2019.4
 using UnityEngine.UIElements;
 
@@ -75,20 +77,24 @@ namespace Vertx.Attributes.Editor
 			}
 		}
 
-		private static string GetIconClass(HelpBoxMessageType messageType) =>
+		private static string? GetIconClass(HelpBoxMessageType messageType) =>
 			messageType switch
 			{
 				HelpBoxMessageType.Info => HelpBox.iconInfoUssClassName,
+#if UNITY_6000_5_OR_NEWER
+				HelpBoxMessageType.Warning => HelpBox.iconWarningUssClassName,
+#else
 				HelpBoxMessageType.Warning => HelpBox.iconwarningUssClassName,
+#endif
 				HelpBoxMessageType.Error => HelpBox.iconErrorUssClassName,
 				_ => null
 			};
 #endif
 
 		private readonly TextElement _textElement;
-		private VisualElement _iconElement;
-		private VisualElement _internalVisualInput;
-		private VisualElement VisualInput => _internalVisualInput ?? (_internalVisualInput = this.Q<VisualElement>(null, inputUssClassName));
+		private VisualElement? _iconElement;
+		private VisualElement? _internalVisualInput;
+		private VisualElement VisualInput => _internalVisualInput ??= this.Q<VisualElement>(null, inputUssClassName);
 
 #if UNITY_2022_2_OR_NEWER
 		public DropdownButton(string displayValue, HelpBoxMessageType iconType = HelpBoxMessageType.None)
@@ -100,7 +106,7 @@ namespace Vertx.Attributes.Editor
 
 
 		public DropdownButton(
-			string label,
+			string? label,
 			string displayValue
 #if UNITY_2022_2_OR_NEWER
 			, HelpBoxMessageType iconType = HelpBoxMessageType.None

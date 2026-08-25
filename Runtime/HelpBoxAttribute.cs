@@ -11,14 +11,22 @@ namespace Vertx.Attributes
 			Warning,
 			Error
 		}
+
+		public enum MessageSize
+		{
+			Default,
+			Small
+		}
 		
 		public string Text { get; }
 		public MessageType Type { get; }
+		public MessageSize Size { get; }
 
-		public HelpBoxAttribute(string text, MessageType type = MessageType.Info)
+		public HelpBoxAttribute(string text, MessageType type = MessageType.Info, MessageSize size = MessageSize.Default)
 		{
 			Text = text;
 			Type = type;
+			Size = size;
 		}
 	}
 }
