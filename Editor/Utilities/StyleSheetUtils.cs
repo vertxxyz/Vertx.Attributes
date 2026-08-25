@@ -16,7 +16,7 @@ namespace Vertx.Attributes.Editor
 			BaseField<int>.ussClassName + "__aligned";
 #endif
 
-		private static readonly Dictionary<string, StyleSheet> s_SheetLookup = new Dictionary<string, StyleSheet>();
+		private static readonly Dictionary<string, StyleSheet> s_sheetLookup = new Dictionary<string, StyleSheet>();
 
 		/// <summary>
 		/// Adds a stylesheet to the root of the inspector if it's not already present.
@@ -25,9 +25,9 @@ namespace Vertx.Attributes.Editor
 		{
 			VisualElement root = evt.destinationPanel.visualTree;
 			root = root.Children().SingleOrDefault(c => c.name.StartsWith("rootVisualContainer", StringComparison.Ordinal)) ?? root;
-			if (!s_SheetLookup.TryGetValue(stylePath, out StyleSheet sheet))
+			if (!s_sheetLookup.TryGetValue(stylePath, out StyleSheet sheet))
 			{
-				s_SheetLookup.Add(stylePath, sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylePath));
+				s_sheetLookup.Add(stylePath, sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylePath));
 				if (sheet == null)
 				{
 					Debug.LogWarning($"\"{stylePath}\" was not found.");
@@ -36,7 +36,13 @@ namespace Vertx.Attributes.Editor
 			}
 			else if (sheet == null)
 			{
-				return;
+				sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylePath);
+				if (sheet == null)
+				{
+					return;
+				}
+
+				s_sheetLookup[stylePath] = sheet;
 			}
 
 			if (!root.styleSheets.Contains(sheet))

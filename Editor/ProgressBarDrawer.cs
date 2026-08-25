@@ -65,7 +65,7 @@ namespace Vertx.Attributes.Editor
 
 			position.y = position.yMax + EditorGUIUtility.standardVerticalSpacing;
 
-			ProgressAttribute progressAttribute = (ProgressAttribute)attribute;
+			var progressAttribute = (ProgressAttribute)attribute;
 			string text = GetText(property.floatValue, progressAttribute, out float normalised);
 			EditorGUI.ProgressBar(position, normalised, text);
 		}

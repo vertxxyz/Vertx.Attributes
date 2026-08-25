@@ -1,31 +1,14 @@
 ﻿using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(ReadOnlyFieldAttribute))]
-	public sealed class ReadOnlyDrawer : PropertyDrawer
+	public sealed class ReadOnlyDrawer : DecoratorDrawer
 	{
-		public override float GetPropertyHeight(SerializedProperty property,
-			GUIContent label) =>
-			EditorGUI.GetPropertyHeight(property, label, true);
-
-		public override void OnGUI(Rect position,
-			SerializedProperty property,
-			GUIContent label)
+		public override VisualElement CreatePropertyGUI() => new DecoratePropertyElement((_, element) =>
 		{
-			GUI.enabled = false;
-			EditorGUI.PropertyField(position, property, label, true);
-			GUI.enabled = true;
-		}
-		
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			var field = new PropertyField(property);
-			field.SetEnabled(false);
-			return field;
-		}
+			element.SetEnabled(false);
+		}) { name = nameof(ReadOnlyDrawer) };
 	}
 }

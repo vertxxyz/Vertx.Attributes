@@ -10,10 +10,10 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(KeyCodeAttribute))]
 	public sealed class KeyCodeAttributeDrawer : EnumDropdownDrawer
 	{
-		private GUIStyle _objectFieldStyle;
+		private GUIStyle? _objectFieldStyle;
 		private GUIStyle ObjectFieldStyle => _objectFieldStyle ?? (_objectFieldStyle = "IN ObjectField");
 
-		private const float widthInput = 18;
+		private const float WidthInput = 18;
 
 #if UNITY_2020_1_OR_NEWER
 		public const string UssClassName = "vertx-keycode-dropdown";
@@ -71,15 +71,15 @@ namespace Vertx.Attributes.Editor
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			position.width -= widthInput;
+			position.width -= WidthInput;
 
-			Rect pickerRect = new Rect(position.xMax, position.y, widthInput, position.height);
+			Rect pickerRect = new Rect(position.xMax, position.y, WidthInput, position.height);
 			int id = GUIUtility.GetControlID((int)pickerRect.x, FocusType.Keyboard, pickerRect);
 			GUI.color = GUIUtility.keyboardControl == id ? Color.green : Color.white;
 
 			base.OnGUI(position, property, label);
 			position.x += position.width;
-			position.width = widthInput;
+			position.width = WidthInput;
 
 			if (Event.current.type == EventType.MouseDown && position.Contains(Event.current.mousePosition))
 			{

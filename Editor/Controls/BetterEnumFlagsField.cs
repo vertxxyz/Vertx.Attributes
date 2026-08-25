@@ -10,28 +10,31 @@ namespace Vertx.Attributes.Editor
 {
 	public sealed class BetterEnumFlagsField : VisualElement
 	{
-		private EnumFlagsValueAndNames _enumFlagsValueAndNames;
-
 		private delegate FieldInfo GetTypeFromPropertyBase(SerializedProperty property, out Type type);
 
-		private static GetTypeFromPropertyBase s_GetTypeFromProperty;
+		private static GetTypeFromPropertyBase? s_getTypeFromProperty;
 
 		private Type GetTypeFromProperty(SerializedProperty property)
 		{
-			if (s_GetTypeFromProperty == null)
+			if (s_getTypeFromProperty == null)
 			{
-				MethodInfo method = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor").GetMethod("GetFieldInfoFromProperty", BindingFlags.Static | BindingFlags.NonPublic);
-				s_GetTypeFromProperty = (GetTypeFromPropertyBase)Delegate.CreateDelegate(typeof(GetTypeFromPropertyBase), method);
+				MethodInfo method = Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor")!.GetMethod("GetFieldInfoFromProperty", BindingFlags.Static | BindingFlags.NonPublic)!;
+				s_getTypeFromProperty = (GetTypeFromPropertyBase)Delegate.CreateDelegate(typeof(GetTypeFromPropertyBase), method);
 			}
 
-			s_GetTypeFromProperty(property, out Type type);
+			s_getTypeFromProperty(property, out Type type);
 			return type;
 		}
 
-		public BetterEnumFlagsField(SerializedProperty property, FieldInfo fieldInfo, bool hideObsoleteNames) : base()
+		public BetterEnumFlagsField(SerializedProperty property, FieldInfo fieldInfo, bool hideObsoleteNames)
 		{
-			_enumFlagsValueAndNames = EnumFlagsValueAndNames.Get(fieldInfo, hideObsoleteNames);
-			var dropdownButton = new DropdownButton(property.displayName, _enumFlagsValueAndNames.GetName(property.intValue));
+			EnumFlagsValueAndNames? enumFlagsValueAndNames = EnumFlagsValueAndNames.Get(fieldInfo, hideObsoleteNames);
+			if (enumFlagsValueAndNames == null)
+			{
+				return;
+			}
+			
+			var dropdownButton = new DropdownButton(property.displayName, enumFlagsValueAndNames.GetName(property.intValue));
 			dropdownButton.RegisterClickCallback<(SerializedProperty property, EnumFlagsValueAndNames valuesAndNames)>(
 				(_, button, data) =>
 				{
@@ -39,9 +42,9 @@ namespace Vertx.Attributes.Editor
 					              ?? button.worldBound;
 					data.valuesAndNames.DropDown(bounds, data.property);
 				},
-				(property, _enumFlagsValueAndNames)
+				(property, enumFlagsValueAndNames)
 			);
-			dropdownButton.TrackPropertyValue(property, p => dropdownButton.Text = _enumFlagsValueAndNames.GetName(p.intValue));
+			dropdownButton.TrackPropertyValue(property, p => dropdownButton.Text = enumFlagsValueAndNames.GetName(p.intValue));
 			Add(dropdownButton);
 		}
 	}

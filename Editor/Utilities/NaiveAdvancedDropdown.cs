@@ -8,7 +8,7 @@ namespace Vertx.Attributes.Editor
 	{
 		// ReSharper disable once ArrangeObjectCreationWhenTypeEvident
 		// ReSharper disable once StaticMemberInGenericType
-		private static readonly AdvancedDropdownState s_State = new AdvancedDropdownState();
+		private static readonly AdvancedDropdownState s_state = new AdvancedDropdownState();
 		private readonly string _title;
 		private readonly string[] _enumNames;
 		private readonly Action<int, T> _onSelected;
@@ -20,7 +20,7 @@ namespace Vertx.Attributes.Editor
 			string[] enumNames,
 			Action<int, T> onSelected,
 			T data
-		) : base(s_State)
+		) : base(s_state)
 		{
 			minimumSize = minSize;
 			_title = title;
@@ -31,7 +31,7 @@ namespace Vertx.Attributes.Editor
 
 		protected override AdvancedDropdownItem BuildRoot()
 		{
-			AdvancedDropdownItem root = new AdvancedDropdownItem(_title) { id = int.MaxValue };
+			var root = new AdvancedDropdownItem(_title) { id = int.MaxValue };
 			for (var i = 0; i < _enumNames.Length; i++)
 			{
 				string name = _enumNames[i];
