@@ -1,5 +1,4 @@
 ﻿using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
@@ -7,14 +6,13 @@ namespace Vertx.Attributes.Editor
 	[CustomPropertyDrawer(typeof(CustomHeaderAttribute))]
 	public sealed class CustomHeaderDecorator : DecoratorDrawer
 	{
-#if UNITY_2022_1_OR_NEWER
-		public const string headerLabelClassName = "unity-header-drawer__label";
+		public const string HeaderLabelUssClassName = "unity-header-drawer__label";
 		
 		public override VisualElement CreatePropertyGUI()
 		{
 			var customHeader = (CustomHeaderAttribute)attribute;
 			var label = new Label(customHeader.LabelText);
-			label.AddToClassList(headerLabelClassName);
+			label.AddToClassList(HeaderLabelUssClassName);
 
 			IStyle style = label.style;
 			if (!float.IsNaN(customHeader.FontSize))
@@ -30,8 +28,5 @@ namespace Vertx.Attributes.Editor
 
 			return label;
 		}
-#endif
-
-		public override void OnGUI(Rect position) => EditorGUI.HelpBox(position, $"{nameof(CustomHeaderAttribute)} is unsupported when using IMGUI.", MessageType.Warning);
 	}
 }

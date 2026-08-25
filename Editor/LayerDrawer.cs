@@ -26,7 +26,7 @@ namespace Vertx.Attributes.Editor
 #if UNITY_2021_1_OR_NEWER
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
-			LayerField layerField = new LayerField(property.displayName) { bindingPath = property.propertyPath };
+			LayerField layerField = new(property.displayName) { bindingPath = property.propertyPath };
 			layerField.AddToClassList(StyleSheetUtils.AlignedFieldUssClassName);
 			return layerField;
 		}

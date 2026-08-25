@@ -1,36 +1,53 @@
-﻿using UnityEditor;
-using UnityEditor.UIElements;
+﻿using System;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
 	[CustomPropertyDrawer(typeof(EditorOnlyFieldAttribute))]
-	public sealed class EditorOnlyDrawer : PropertyDrawer
+	public sealed class EditorOnlyDrawer : DecoratorDrawer
 	{
-		public override float GetPropertyHeight(SerializedProperty property,
-			GUIContent label) =>
-			EditorGUI.GetPropertyHeight(property, label, true);
+		private static readonly HashSet<DecoratePropertyElement> s_editorOnlyDecorators = new();
 
-		public override void OnGUI(Rect position,
-			SerializedProperty property,
-			GUIContent label)
+		[InitializeOnLoadMethod]
+		private static void Setup()
 		{
-			if (Application.IsPlaying(property.serializedObject.targetObject))
+			EditorApplication.playModeStateChanged += change =>
 			{
-				GUI.enabled = false;
-				EditorGUI.PropertyField(position, property, label, true);
-				GUI.enabled = true;
-			}
-			else
-				EditorGUI.PropertyField(position, property, label, true);
+				try
+				{
+					if (change != PlayModeStateChange.EnteredEditMode && change != PlayModeStateChange.EnteredPlayMode)
+						return;
+					
+					s_editorOnlyDecorators.RemoveWhere(e => !e.HasTarget);
+
+					foreach (DecoratePropertyElement element in s_editorOnlyDecorators)
+						element.ModifyAll();
+				}
+				catch (Exception e)
+				{
+					Debug.LogException(e);
+				}
+			};
 		}
-		
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
+
+		public override VisualElement CreatePropertyGUI()
 		{
-			var field = new PropertyField(property);
-			field.SetEnabled(!Application.IsPlaying(property.serializedObject.targetObject));
-			return field;
+			var drawer = new DecoratePropertyElement(
+				// Only set the element to enabled if we're not playing.
+				(property, element) => element.SetEnabled(!Application.IsPlaying(property.serializedObject.targetObject))
+			) { name = nameof(EditorOnlyDrawer) };
+			s_editorOnlyDecorators.Add(drawer);
+
+			// Remove the drawer from our set if it's detached from the panel.
+			drawer.RegisterCallback<DetachFromPanelEvent, (HashSet<DecoratePropertyElement> set, DecoratePropertyElement element)>(
+				static (_, args) => args.set.Remove(args.element),
+				(s_editorOnlyDecorators, drawer)
+			);
+
+			return drawer;
 		}
 	}
 }

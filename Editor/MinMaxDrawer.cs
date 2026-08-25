@@ -234,7 +234,7 @@ namespace Vertx.Attributes.Editor
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			MinMaxAttribute a = (MinMaxAttribute)attribute;
+			var a = (MinMaxAttribute)attribute;
 			DoSlider(a.Label ?? new GUIContent(property.displayName), position, property, a.Min, a.Max);
 		}
 
@@ -347,15 +347,15 @@ namespace Vertx.Attributes.Editor
 
 		private class ZeroIndentScope : IDisposable
 		{
-			private readonly int previousIndent;
+			private readonly int _previousIndent;
 
 			public ZeroIndentScope()
 			{
-				previousIndent = EditorGUI.indentLevel;
+				_previousIndent = EditorGUI.indentLevel;
 				EditorGUI.indentLevel = 0;
 			}
 
-			public void Dispose() => EditorGUI.indentLevel = previousIndent;
+			public void Dispose() => EditorGUI.indentLevel = _previousIndent;
 		}
 	}
 }

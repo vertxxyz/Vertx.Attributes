@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -7,7 +9,10 @@ namespace Vertx.Attributes.Editor
 {
 	internal static class VisualElementUtilities
 	{
-		public static bool TryFindInParent<TParent>(VisualElement element, out TParent result) where TParent : VisualElement
+		public static bool TryFindInParent<TParent>(
+			VisualElement element,
+			[NotNullWhen(true)] out TParent? result
+		) where TParent : VisualElement
 		{
 			VisualElement parent = element.parent;
 			// ReSharper disable once UseNegatedPatternInIsExpression
@@ -25,11 +30,17 @@ namespace Vertx.Attributes.Editor
 			result = (TParent)parent;
 			return true;
 		}
-		
+
+		private static readonly Func<PropertyField, SerializedProperty> s_getSerializedPropertyFunc =
+			(Func<PropertyField, SerializedProperty>)Delegate.CreateDelegate(
+				typeof(Func<PropertyField, SerializedProperty>),
+				typeof(PropertyField).GetProperty("serializedProperty", BindingFlags.NonPublic | BindingFlags.Instance)!.GetMethod
+			);
+
 		// ReSharper disable once SuggestBaseTypeForParameter
-		public static SerializedProperty GetSerializedProperty(PropertyField propertyField)
+		public static SerializedProperty? GetSerializedProperty(PropertyField propertyField)
 		{
-			var property = (SerializedProperty)typeof(PropertyField).GetProperty("serializedProperty", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(propertyField);
+			SerializedProperty property = s_getSerializedPropertyFunc(propertyField);
 			if (property == null)
 				return null;
 			if (property.propertyPath == "")

@@ -12,7 +12,7 @@ namespace Vertx.Attributes.Editor
 		private readonly T _reference;
 		private readonly ButtonAttribute.Location _location;
 		private readonly Func<T, SerializedProperty, VisualElement> _createElement;
-		private VisualElement _element;
+		private VisualElement? _element;
 
 		public RepositionDrawerElement(Func<T, SerializedProperty, VisualElement> createElement, ButtonAttribute.Location displayLocation, T reference)
 		{
@@ -25,18 +25,18 @@ namespace Vertx.Attributes.Editor
 
 		private static void Attach(AttachToPanelEvent evt, RepositionDrawerElement<T> rde)
 		{
-			if (!VisualElementUtilities.TryFindInParent(rde, out PropertyField field))
+			if (!VisualElementUtilities.TryFindInParent(rde, out PropertyField? field))
 			{
 				Debug.LogWarning($"{nameof(PropertyField)} parent could not be located. Please report a bug with Vertx.Attributes.");
 				return;
 			}
 
-			SerializedProperty property = VisualElementUtilities.GetSerializedProperty(field);
+			SerializedProperty property = VisualElementUtilities.GetSerializedProperty(field)!;
 
 			switch (rde._location)
 			{
 				case ButtonAttribute.Location.Bottom:
-					if (!VisualElementUtilities.TryFindInParent(rde, out InspectorElement inspector))
+					if (!VisualElementUtilities.TryFindInParent(rde, out InspectorElement? inspector))
 					{
 						Debug.LogWarning($"{nameof(ButtonAttribute)} with this location is not currently supported, as a {nameof(InspectorElement)} parent could not be found.");
 						return;
@@ -86,7 +86,7 @@ namespace Vertx.Attributes.Editor
 
 		private static void Invoke(ButtonAttribute attribute, SerializedProperty property)
 		{
-			UnityEngine.Object o = property.serializedObject?.targetObject;
+			UnityEngine.Object? o = property.serializedObject?.targetObject;
 			
 			if (attribute.StaticMethodType != null)
 			{
@@ -101,7 +101,7 @@ namespace Vertx.Attributes.Editor
 			}
 
 			Type type = o.GetType();
-			MethodInfo method = type.GetMethod(attribute.MethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			MethodInfo? method = type.GetMethod(attribute.MethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			if (method == null)
 			{
 				if (!InvokeStatic(attribute, type, property))
@@ -127,7 +127,7 @@ namespace Vertx.Attributes.Editor
 
 		private static bool InvokeStatic(ButtonAttribute attribute, Type type, SerializedProperty property)
 		{
-			MethodInfo method = type.GetMethod(attribute.MethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+			MethodInfo? method = type.GetMethod(attribute.MethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			if (method == null)
 				return false;
 			
@@ -147,7 +147,7 @@ namespace Vertx.Attributes.Editor
 			}
 		}
 
-		enum ParameterResult
+		private enum ParameterResult
 		{
 			None,
 			SerializedProperty,

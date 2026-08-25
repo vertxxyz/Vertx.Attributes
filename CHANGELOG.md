@@ -4,11 +4,19 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.7.0]
+## [2.0.0]
+### Changed
+- Minimum Unity version is now 2023.2.  
+  This is to correctly support the most possible DecoratorAttribute solutions as possible, which is what separates this package from others.
+
+### Removed
+- IMGUI support has been removed. Specify an earlier version of the package if you needed this.
+
 ### Added
 - `[Layer]`, for ints representing a single layer.
-- `[Button(methodName)]`, IMGUI is not supported.
-- `[CustomHeader("Label")]`, a `HeaderAttribute` that allows margin and font size to be overridden, IMGUI is not supported.
+- `[Button(methodName)]`.
+- `[CustomHeader("Label")]`, a `HeaderAttribute` that allows margin and font size to be overridden.
+- Added optional `extension` default filter to `[File]`.
 
 ## [1.6.0]
 ### Changed

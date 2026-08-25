@@ -47,7 +47,7 @@ namespace Vertx.Attributes.Editor
 				property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
 				UpdateHelpBoxDisplay();
 			});
-			
+
 			root.Add(new Button(SelectFolder)
 			{
 				text = $"Set {property.displayName}"
@@ -58,7 +58,7 @@ namespace Vertx.Attributes.Editor
 			{
 				FileAttribute fA = (FileAttribute)attribute;
 				string path = fA.FileIsLocalToProject ? "Assets" : Application.dataPath;
-				string newFile = EditorUtility.OpenFilePanel("Choose File", path, null);
+				string newFile = EditorUtility.OpenFilePanel("Choose File", path, fA.Extension);
 				if (SetNewFileLocation(newFile, fA) != LocationValidity.ValidLocation)
 				{
 					UpdateHelpBoxDisplay();
@@ -137,7 +137,7 @@ namespace Vertx.Attributes.Editor
 					return;
 			}
 
-			string newFile = EditorUtility.OpenFilePanel("Choose File", path, null);
+			string newFile = EditorUtility.OpenFilePanel("Choose File", path, fA.Extension);
 			if (string.IsNullOrEmpty(newFile))
 			{
 				GUIUtility.ExitGUI();
