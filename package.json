@@ -1,7 +1,7 @@
 {
   "name": "com.vertx.attributes",
   "displayName": "Attributes",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "unity": "2023.2",
   "description": "Attributes and Property Drawers/Decorators for Unity.",
   "author": {

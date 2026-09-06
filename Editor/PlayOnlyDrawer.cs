@@ -9,10 +9,10 @@ namespace Vertx.Attributes.Editor
 #if UNITY_6000_7_OR_NEWER
 	[Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
 #endif
-	[CustomPropertyDrawer(typeof(EditorOnlyFieldAttribute))]
-	public sealed class EditorOnlyDrawer : DecoratorDrawer
+	[CustomPropertyDrawer(typeof(PlayOnlyFieldAttribute))]
+	public sealed class PlayOnlyDrawer : DecoratorDrawer
 	{
-		private static readonly HashSet<DecoratePropertyElement> s_editorOnlyDecorators = new();
+		private static readonly HashSet<DecoratePropertyElement> s_playOnlyDecorators = new();
 
 		[InitializeOnLoadMethod]
 		private static void Setup()
@@ -24,9 +24,9 @@ namespace Vertx.Attributes.Editor
 					if (change != PlayModeStateChange.EnteredEditMode && change != PlayModeStateChange.EnteredPlayMode)
 						return;
 					
-					s_editorOnlyDecorators.RemoveWhere(e => !e.HasTarget);
+					s_playOnlyDecorators.RemoveWhere(e => !e.HasTarget);
 
-					foreach (DecoratePropertyElement element in s_editorOnlyDecorators)
+					foreach (DecoratePropertyElement element in s_playOnlyDecorators)
 						element.ModifyAll();
 				}
 				catch (Exception e)
@@ -40,14 +40,14 @@ namespace Vertx.Attributes.Editor
 		{
 			var drawer = new DecoratePropertyElement(
 				// Only set the element to enabled if we're not playing.
-				(property, element) => element.SetEnabled(!Application.IsPlaying(property.serializedObject.targetObject))
-			) { name = nameof(EditorOnlyDrawer) };
-			s_editorOnlyDecorators.Add(drawer);
+				(property, element) => element.SetEnabled(Application.IsPlaying(property.serializedObject.targetObject))
+			) { name = nameof(PlayOnlyDrawer) };
+			s_playOnlyDecorators.Add(drawer);
 
 			// Remove the drawer from our set if it's detached from the panel.
 			drawer.RegisterCallback<DetachFromPanelEvent, (HashSet<DecoratePropertyElement> set, DecoratePropertyElement element)>(
 				static (_, args) => args.set.Remove(args.element),
-				(s_editorOnlyDecorators, drawer)
+				(s_playOnlyDecorators, drawer)
 			);
 
 			return drawer;

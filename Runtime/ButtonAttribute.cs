@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Vertx.Attributes
 {
+	[AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
 	public sealed class ButtonAttribute : PropertyAttribute
 	{
 		public string MethodName { get; }

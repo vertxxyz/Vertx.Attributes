@@ -4,10 +4,18 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.1]
+### Added
+- Added `[PlayOnlyField]`.
+
+### Fixed
+- Fixed `[Inline]` not updating with Object changes.
+
 ## [2.0.0]
 ### Changed
 - Minimum Unity version is now 2023.2.  
   This is to correctly support the most possible DecoratorAttribute solutions as possible, which is what separates this package from others.
+- [Inline] now also draws Object fields as an inline editor.
 
 ### Removed
 - IMGUI support has been removed. Specify an earlier version of the package if you needed this.

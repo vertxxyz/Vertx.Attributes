@@ -9,9 +9,15 @@ using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
+#if UNITY_6000_7_OR_NEWER
+	[Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
 	[CustomPropertyDrawer(typeof(SortingLayerAttribute))]
 	public sealed class SortingLayerDrawer : PropertyDrawer
 	{
+#if UNITY_6000_7_OR_NEWER
+		[Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
 		private static class Styles
 		{
 			private static GUIStyle? s_soldPopupStyle;

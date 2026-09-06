@@ -54,5 +54,7 @@ namespace Vertx.Attributes.Editor
 			for (var i = 1; i < _target.childCount; i++)
 				_modifyElement(_property!, _target[i]);
 		}
+
+		public void Decorate(SerializedProperty property, VisualElement element) => _modifyElement(property, element);
 	}
 }

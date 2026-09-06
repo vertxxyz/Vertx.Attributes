@@ -3,16 +3,18 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
+
 	internal sealed class RepositionDrawerElement<T> : VisualElement
 	{
+		private VisualElement? _element;
 		private readonly T _reference;
 		private readonly ButtonAttribute.Location _location;
 		private readonly Func<T, SerializedProperty, VisualElement> _createElement;
-		private VisualElement? _element;
 
 		public RepositionDrawerElement(Func<T, SerializedProperty, VisualElement> createElement, ButtonAttribute.Location displayLocation, T reference)
 		{
@@ -21,6 +23,17 @@ namespace Vertx.Attributes.Editor
 			_location = displayLocation;
 			RegisterCallback<AttachToPanelEvent, RepositionDrawerElement<T>>(Attach, this);
 			RegisterCallback<DetachFromPanelEvent, RepositionDrawerElement<T>>(Detach, this);
+		}
+		
+		private void OnCreated(SerializedProperty property, VisualElement element) 
+		{
+			_element = element;
+			using var _ = ListPool<DecoratePropertyElement>.Get(out var list);
+			parent.Query<DecoratePropertyElement>().ToList(list);
+			foreach (DecoratePropertyElement decorator in list)
+			{
+				decorator.Decorate(property, _element);
+			}
 		}
 
 		private static void Attach(AttachToPanelEvent evt, RepositionDrawerElement<T> rde)
@@ -42,17 +55,25 @@ namespace Vertx.Attributes.Editor
 						return;
 					}
 
-					inspector[inspector.childCount - 1].Add(rde._element ??= rde._createElement(rde._reference, property));
+					rde._element ??= rde._createElement(rde._reference, property);
+					inspector[inspector.childCount - 1].Add(rde._element);
+					rde.OnCreated(property, rde._element);
 					break;
 				case ButtonAttribute.Location.Below:
 					EditorApplication.delayCall += () =>
 					{
 						if (rde.panel != null)
-							field.Add(rde._element ??= rde._createElement(rde._reference, property));
+						{
+							rde._element ??= rde._createElement(rde._reference, property);
+							field.Add(rde._element);
+							rde.OnCreated(property, rde._element);
+						}
 					};
 					break;
 				case ButtonAttribute.Location.Above:
-					rde.Add(rde._element ??= rde._createElement(rde._reference, property)); // Do nothing
+					rde._element ??= rde._createElement(rde._reference, property);
+					rde.Add(rde._element); // Do nothing
+					rde.OnCreated(property, rde._element);
 					return;
 				default:
 					throw new ArgumentOutOfRangeException();

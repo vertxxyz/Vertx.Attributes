@@ -8,6 +8,9 @@ using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
+#if UNITY_6000_7_OR_NEWER
+	[Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
 	public sealed class BetterEnumFlagsField : VisualElement
 	{
 		private delegate FieldInfo GetTypeFromPropertyBase(SerializedProperty property, out Type type);

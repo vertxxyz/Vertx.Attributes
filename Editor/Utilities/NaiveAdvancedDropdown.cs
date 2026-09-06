@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Vertx.Attributes.Editor
 {
+#if UNITY_6000_7_OR_NEWER
+	[Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
 	internal sealed class NaiveAdvancedDropdown<T> : AdvancedDropdown
 	{
 		// ReSharper disable once ArrangeObjectCreationWhenTypeEvident

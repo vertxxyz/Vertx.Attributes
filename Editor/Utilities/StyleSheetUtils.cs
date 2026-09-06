@@ -7,6 +7,9 @@ using UnityEngine.UIElements;
 
 namespace Vertx.Attributes.Editor
 {
+#if UNITY_6000_7_OR_NEWER
+	[Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
 	internal static class StyleSheetUtils
 	{
 		public static readonly string AlignedFieldUssClassName =
